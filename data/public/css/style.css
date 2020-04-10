@@ -1,0 +1,99 @@
+a {
+    color: #025aa5;
+}
+body {
+    background: #F1F1F1;
+}
+body, pre {
+    color: #4b4b4b;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+
+/* Vue */
+[v-cloak] {
+	position: relative;
+}
+[v-cloak] > * {
+    visibility: hidden;
+}
+[v-cloak]:before {
+    content:"";
+    background: url("/images/ajax-loader.gif") no-repeat top center;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* Layout */
+.layout-drawer {
+}
+.layout-drawer .drawer {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 240px;
+    height: 100%;
+    z-index: 2;
+}
+
+.layout-drawer .handle{
+    background: none;
+    border:0;
+    cursor: pointer;
+    min-width: 30px;
+    padding: 15px 0;
+    margin: 0;
+    position: relative;
+    outline:0;
+}
+.layout-drawer .handle .icon-bars {
+    background: #ffffff;
+    width: 100%;
+    height:3px;
+    margin-bottom: 5px;
+}
+.layout-drawer .handle .icon-bars:last-child {
+    margin-bottom: 0;
+}
+.layout-drawer .main{
+    margin-left: 240px;
+}
+
+/* Close */
+.layout-drawer .drawer,
+.layout-drawer .main {
+    transition: all ease-out 250ms;
+}
+.layout-drawer.drawer-close .drawer {
+    left: -240px;
+}
+.layout-drawer.drawer-close .main{
+    margin-left: 0;
+}
+
+/* Theme */
+.layout-drawer .drawer {
+    background: #151b26;
+}
+.layout-drawer .top-bar {
+    background: #343a40;
+}
+
+#interactive.viewport {
+    position: relative;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#interactive.viewport > canvas, #interactive.viewport > video {
+    max-width: 100%;
+    width: 100%;
+}
+
+canvas.drawing, canvas.drawingBuffer {
+    position: absolute;
+    left: 0;
+    top: 0;
+}

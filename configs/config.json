@@ -1,0 +1,67 @@
+{
+    "app": {
+        "port": "8091",
+        "url": "http://localhost:8091",
+        "dir": "${APP_DIR}",
+        "dirs": {
+            "data": "${APP_DIR}/data",
+            "src": "${APP_DIR}/src",
+            "public": "${APP_DIR}/data/public",
+            "view": "${APP_DIR}/data/view",
+            "upload": "${APP_DIR}/data/upload"
+        }
+    },
+    "express": {
+        "trustProxy": false
+    },
+    "nunjucks": {
+        "loader": {
+            "watch": true,
+            "noCache": true
+        },
+        "environment": {
+            "autoescape": true,
+            "throwOnUndefined": false,
+            "trimBlocks": false,
+            "lstripBlocks": false
+        }
+    },
+    "session": {
+        "name": "connect.ec.sid",
+        "store": {
+            "db": "sessions.db",
+            "dir": "${APP_DIR}/data"
+        },
+        "cookie": {
+            "httpOnly": false,
+            "maxAge": 31536000000,
+            "secure": false
+        }
+    },
+    "aws": {
+        "bucket1": {
+            "region": "ap-southeast-1",
+            "name": "kosinix-bucket1",
+            "url": "https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/",
+            "prefix": ""
+        }
+    },
+    "mongodb": {
+        "users": {
+            "web": {
+                "roles": [
+                    {
+                        "role": "readWrite",
+                        "db": "barcode"
+                    }
+                ]
+            }
+        },
+        "connections": {
+            "web": {
+                "host": "127.0.0.1:27017",
+                "dbName": "barcode"
+            }
+        }
+    }
+}

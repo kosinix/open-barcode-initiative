@@ -1,0 +1,143 @@
+{% extends "document.html" %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        <h3>Encode Product</h3>
+        <p class="alert alert-warning">Note: Only <a target="_blank" href="https://en.wikipedia.org/wiki/International_Article_Number">EAN-13</a> barcodes supported at the moment. (13-digit standard barcode)</p>
+        <div class="form-row mb-5">
+            <div class="col ml-auto mr-auto">
+                <div id="interactive" class="viewport"></div>
+            </div>
+        </div>
+        <form action="/" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="barcode">Barcode</label>
+                <input id="barcode" name="barcode" type="text" class="form-control">
+                <button type="button" id="scan">Scan</button>
+                <button type="button" id="stop">x</button>
+            </div>
+            <div class="form-group">
+                <label for="name">Product Name</label>
+                <input id="name" name="name" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="model">Model Code</label>
+                <input id="model" name="model" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input id="description" name="description" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="photo">Product Photo</label>
+                <input id="photo" name="photo" type="file" class="form-control">
+            </div>
+            <button class="btn btn-primary">Save Product</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/quagga.min.js"></script>
+<script>
+    var config = {
+        inputStream: {
+            type: "LiveStream",
+            constraints: {
+                width: { min: 320 },
+                height: { min: 240 },
+                aspectRatio: { min: 1, max: 100 },
+                facingMode: "environment" // or user
+            },
+            target: document.querySelector('#interactive'),
+        },
+        locator: {
+            patchSize: "medium",
+            halfSample: true
+        },
+        numOfWorkers: 2,
+        frequency: 10,
+        decoder: {
+            readers: [{
+                format: "ean_reader",
+                config: {}
+            }]
+        },
+        locate: true
+    }
+
+    Quagga.onProcessed(function (result) {
+        var drawingCtx = Quagga.canvas.ctx.overlay,
+            drawingCanvas = Quagga.canvas.dom.overlay;
+
+        if (result) {
+            if (result.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                result.boxes.filter(function (box) {
+                    return box !== result.box;
+                }).forEach(function (box) {
+                    Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                });
+            }
+
+            if (result.box) {
+                Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
+            }
+        }
+    });
+
+    var candidates = {}
+    var threshold = 3
+    Quagga.onDetected(function (result) {
+        var code = result.codeResult.code;
+        code = code + ''
+        if (candidates[code]) {
+            if (candidates[code] >= threshold) {
+                $('#barcode').val(code)
+                Quagga.stop()
+
+                var drawingCtx = Quagga.canvas.ctx.overlay
+                var drawingCanvas = Quagga.canvas.dom.overlay;
+
+                if (result) {
+                    if (result.boxes) {
+                        drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+
+                    }
+                }
+            } else {
+                candidates[code]++
+
+            }
+        } else {
+            candidates[code] = 1
+        }
+        console.log(candidates)
+    });
+    jQuery(document).ready(function ($) {
+        $('#scan').on('click', function (e) {
+            console.log('go')
+            Quagga.init(config, function (err) {
+                if (err) {
+                    console.log(err);
+                    alert(err.message)
+                    return;
+                }
+                Quagga.start();
+            });
+        })
+        $('#stop').on('click', function (e) {
+            console.log('stop')
+            $('#interactive').html('')
+            Quagga.stop();
+        })
+    })
+</script>
+{% endblock %}
