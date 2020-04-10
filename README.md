@@ -1,2 +1,2 @@
-# saristore
-Online sari-sari store
+# open barcode
+A Wikipedia for barcodes
