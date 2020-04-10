@@ -38,9 +38,7 @@ router.post('/', fileUpload(), middlewares.handleExpressUploadMagic, async (req,
 
         await product.save()
         
-        return res.send(product)
-        res.render('scan.html', {
-        })
+        return res.redirect('/products')
     } catch (err) {
         next(err);
     }
