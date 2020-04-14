@@ -1,0 +1,65 @@
+{% extends "document.html" %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        <h3>Encode Product</h3>
+        
+        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/create" method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="barcode">Barcode</label>
+                <input v-model="barcode" id="barcode" name="barcode" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="name">Product Name</label>
+                <input v-model="name" id="name" name="name" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="model">Model Code</label>
+                <input v-model="model" id="model" name="model" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="description">Description</label>
+                <input v-model="description" id="description" name="description" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="photo">Product Photo</label>
+                <input v-model="photo" id="photo" name="photo" type="file" class="form-control">
+            </div>
+            <button class="btn btn-primary">Save Product</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/vue.js"></script>
+<script>
+    var app = new Vue({
+        el: '#v-encode',
+        delimiters: ["${", "}"],
+        data: {
+            barcode: '',
+            name: '',
+            model: '',
+            description: '',
+            photo: '',
+        },
+        created: function(){
+            var barcode = getQuery('barcode')
+            if(barcode){
+                this.barcode = barcode
+            }
+        },
+        methods: {
+            onSubmit: function(){
+                var me = this;
+                me.$nextTick(function() {
+                    me.$refs.form.submit();
+                });
+            }
+        }
+    })
+</script>
+{% endblock %}

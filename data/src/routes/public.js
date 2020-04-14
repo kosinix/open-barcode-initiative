@@ -12,7 +12,7 @@ const middlewares = require('../middlewares');
 
 let router = express.Router();
 
-router.get('/', async (req, res, next) => {
+router.get('/scan', async (req, res, next) => {
     try {
         res.render('scan.html', {
         })
@@ -21,7 +21,62 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.post('/', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
+router.post('/scan', async (req, res, next) => {
+    try {
+        
+        let body = req.body
+
+        let products = await db.web.Product.find({
+            barcode: body.barcode,
+        })
+        console.log(products)
+        if(products && products.length <= 0){
+            return res.redirect(`/product/create?barcode=${body.barcode}`)
+        }
+        res.redirect(`/product/edit?barcode=${body.barcode}`)
+
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/product/create', async (req, res, next) => {
+    try {
+        
+        res.render('products/create.html')
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/product/edit', async (req, res, next) => {
+    try {
+        let barcode = lodash.get(req.query, 'barcode')
+        let products = await db.web.Product.find({
+            barcode: barcode
+        })
+        res.render('products.html', {
+            products: products
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/products', async (req, res, next) => {
+    try {
+        let products = await db.web.Product.find({
+    
+        }).limit(10)
+        res.render('products.html', {
+            products: products
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.post('/product/create', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
     try {
         
         let body = req.body
@@ -44,17 +99,6 @@ router.post('/', fileUpload(), middlewares.handleExpressUploadMagic, async (req,
     }
 });
 
-router.get('/products', async (req, res, next) => {
-    try {
-        let products = await db.web.Product.find({
 
-        }).limit(10)
-        res.render('products.html', {
-            products: products
-        })
-    } catch (err) {
-        next(err);
-    }
-});
 
 module.exports = router;

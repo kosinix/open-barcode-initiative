@@ -6,35 +6,23 @@
     <div class="col-md-12" id="vApp">
         <h3>Encode Product</h3>
         <p class="alert alert-warning">Note: Only <a target="_blank" href="https://en.wikipedia.org/wiki/International_Article_Number">EAN-13</a> barcodes supported at the moment. (13-digit standard barcode)</p>
-        <div class="form-row mb-5">
+        <div class="form-row mb-2">
             <div class="col ml-auto mr-auto">
                 <div id="interactive" class="viewport"></div>
             </div>
         </div>
-        <form action="/" method="POST" enctype="multipart/form-data">
+        <form id="fScan" action="/scan" method="POST">
+            <div class="text-center">
+                <button class="btn btn-sm btn-primary" type="button" id="scan">Scan</button>
+                <button class="btn btn-sm btn-danger" style="display:none" type="button" id="stop">X</button>
+            </div>
             <div class="form-group">
                 <label for="barcode">Barcode</label>
-                <input id="barcode" name="barcode" type="text" class="form-control">
-                <button type="button" id="scan">Scan</button>
-                <button type="button" id="stop">x</button>
+                <input id="barcode" name="barcode" type="text" value="4800888143402" class="form-control">
             </div>
-            <div class="form-group">
-                <label for="name">Product Name</label>
-                <input id="name" name="name" type="text" class="form-control">
+            <div class="text-center">
+                <button class="btn btn-success">Search Code</button>
             </div>
-            <div class="form-group">
-                <label for="model">Model Code</label>
-                <input id="model" name="model" type="text" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input id="description" name="description" type="text" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="photo">Product Photo</label>
-                <input id="photo" name="photo" type="file" class="form-control">
-            </div>
-            <button class="btn btn-primary">Save Product</button>
         </form>
     </div>
 </div>
@@ -100,7 +88,7 @@
         code = code + ''
         if (candidates[code]) {
             if (candidates[code] >= threshold) {
-                $('#barcode').val(code)
+                jQuery('#barcode').val(code)
                 Quagga.stop()
 
                 var drawingCtx = Quagga.canvas.ctx.overlay
@@ -112,6 +100,7 @@
 
                     }
                 }
+                jQuery('#fScan').submit()
             } else {
                 candidates[code]++
 
@@ -123,7 +112,8 @@
     });
     jQuery(document).ready(function ($) {
         $('#scan').on('click', function (e) {
-            console.log('go')
+            $('#scan').hide()
+            $('#stop').show()
             Quagga.init(config, function (err) {
                 if (err) {
                     console.log(err);
@@ -134,7 +124,8 @@
             });
         })
         $('#stop').on('click', function (e) {
-            console.log('stop')
+            $('#scan').show()
+            $('#stop').hide()
             $('#interactive').html('')
             Quagga.stop();
         })

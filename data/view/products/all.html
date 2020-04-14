@@ -1,0 +1,47 @@
+{% extends "document.html" %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        <h3>Products</h3>
+        {% if products %}
+            <div class="table-responsive-sm">
+                <table class="table">
+                    <tr>
+                        <th>Barcode</th>
+                        <th>Name</th>
+                        <th>Model</th>
+                        <th>Photo</th>
+                    </tr>
+                    {% for product in products %}
+                    <tr>
+                        <td>
+                            <svg class="barcode"
+                                jsbarcode-format="EAN13"
+                                jsbarcode-value="{{product.barcode}}"
+                                jsbarcode-width="2"
+                                jsbarcode-height="60"
+                                jsbarcode-textmargin="0"
+                                jsbarcode-fontoptions="bold">
+                            </svg>
+                        </td>
+                        <td>{{product.name}}</td>
+                        <td>{{product.model}}</td>
+                        <td><img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{product.photo}}" alt=""></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p>No products yet.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/JsBarcode.all.min.js"></script>
+<script>
+JsBarcode("svg.barcode").init();
+</script>
+{% endblock %}
