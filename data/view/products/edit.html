@@ -1,0 +1,81 @@
+{% extends "document.html" %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        <h3>Edit Product</h3>
+        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/edit" method="POST" enctype="multipart/form-data">
+            <div v-if="!product">No product</div>
+            <div v-else>
+                <div class="form-group">
+                    <label for="barcode">Barcode</label>
+                    <input v-model="product.barcode" id="barcode" name="barcode" type="text" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="name">Product Name</label>
+                    <input v-model="product.name" id="name" name="name" type="text" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="size">Size</label>
+                    <div class="form-row">
+                        <div class="col">
+                            <input v-model="product.size" id="size" name="size" type="number" class="form-control">
+                        </div> 
+                        <div class="col">
+                            <select v-model="product.unit" name="unit" id="unit" class="form-control">
+                                <option value="">(unit)</option>
+                                <option value="g">g</option>
+                                <option value="ml">ml</option>
+                                <option value="L">L</option>
+                            </select>
+                        </div> 
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <input v-model="product.description" id="description" name="description" type="text" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="photo">Product Photo</label>
+                    <input v-model="product.photo" id="photo" name="photo" type="file" class="form-control">
+                </div>
+                <button class="btn btn-primary">Save Product</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/vue.js"></script>
+<script>
+    var app = new Vue({
+        el: '#v-encode',
+        delimiters: ["${", "}"],
+        data: {
+            product: {{product|stringify|safe}},
+            barcode: '',
+            name: '',
+            size: '',
+            unit: '',
+            description: '',
+            photo: '',
+        },
+        created: function(){
+            var barcode = getQuery('barcode')
+            if(barcode){
+                this.barcode = barcode
+            }
+        },
+        methods: {
+            onSubmit: function(){
+                var me = this;
+                me.$nextTick(function() {
+                    me.$refs.form.submit();
+                });
+            }
+        }
+    })
+</script>
+{% endblock %}

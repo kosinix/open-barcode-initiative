@@ -70,7 +70,12 @@ app.use(compression());
 // Indicates the app is behind a front-facing proxy, and to use the X-Forwarded-* headers to determine the connection and the IP address of the client.
 app.set('trust proxy', CONFIG.express.trustProxy);
 
-
+// Hide nave
+app.use((req, res, next) => {
+    let hideNav = lodash.get(req, 'cookies.hideNav', 'true')
+    res.locals.hideNav = hideNav
+    next();
+});
 
 //// Routes
 app.use(routes);

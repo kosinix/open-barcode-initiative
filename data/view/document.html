@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="{{app.url}}/css/style.css" />
 </head>
 <body class="{{bodyClass}}">
-<div class="layout-drawer">
+<div class="layout-drawer {% if hideNav == 'true' %}drawer-close{% endif %}">
     <nav class="drawer">
         <div class="container pt-2">
             <a class="navbar-brand mb-2" href="/"> 

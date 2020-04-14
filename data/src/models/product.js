@@ -7,7 +7,10 @@ let schema = mongoose.Schema({
     name: {
         type: String,
     },
-    model: {
+    size: {
+        type: Number,
+    },
+    unit: {
         type: String,
     },
     photo: {

@@ -16,8 +16,19 @@
                 <input v-model="name" id="name" name="name" type="text" class="form-control">
             </div>
             <div class="form-group">
-                <label for="model">Model Code</label>
-                <input v-model="model" id="model" name="model" type="text" class="form-control">
+                <label for="size">Size</label>
+                <div class="form-row">
+                    <div class="col">
+                        <input v-model="size" id="size" name="size" type="number" class="form-control">
+                    </div> 
+                    <div class="col">
+                        <select v-model="unit" name="unit" id="unit" class="form-control">
+                            <option value="">(unit)</option>
+                            <option value="g">g</option>
+                            <option value="ml">ml</option>
+                        </select>
+                    </div> 
+                </div>
             </div>
             <div class="form-group">
                 <label for="description">Description</label>
@@ -42,7 +53,8 @@
         data: {
             barcode: '',
             name: '',
-            model: '',
+            size: '',
+            unit: '',
             description: '',
             photo: '',
         },
