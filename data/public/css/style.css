@@ -6,7 +6,7 @@ body {
 }
 body, pre {
     color: #4b4b4b;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    font-family: "Courier New", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
 }
 
 /* Vue */
@@ -79,6 +79,16 @@ body, pre {
 }
 .layout-drawer .top-bar {
     background: #343a40;
+}
+
+/* Nav */
+.nav-main .nav-item .nav-link {
+    padding: 4px 0;
+    font-size: 14px;
+    display: flex;
+}
+.nav-main .nav-item .nav-link svg {
+    margin-right: 6px;
 }
 
 #interactive.viewport {
