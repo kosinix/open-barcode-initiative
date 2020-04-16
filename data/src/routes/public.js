@@ -66,7 +66,8 @@ router.post('/product/create', fileUpload(), middlewares.handleExpressUploadMagi
         let product = new db.web.Product({
             barcode: body.barcode,
             name: body.name,
-            model: body.model,
+            size: body.size,
+            unit: body.unit,
         })
         if(lodash.has(files, 'photo.0')){
             product.photo = files.photo[0]
