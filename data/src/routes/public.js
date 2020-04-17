@@ -128,6 +128,17 @@ router.post('/product/edit', fileUpload(), middlewares.handleExpressUploadMagic,
     }
 });
 
+router.post('/product/upload', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
+    try {
+        
+        return res.send({
+            saveList: req.saveList,
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+
 router.get('/products', async (req, res, next) => {
     try {
         let products = await db.web.Product.find({

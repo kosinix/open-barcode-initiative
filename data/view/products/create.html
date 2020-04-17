@@ -37,7 +37,8 @@
             </div>
             <div class="form-group">
                 <label for="photo">Product Photo</label>
-                <input id="photo" name="photo" type="file" class="form-control">
+                {# <input id="photo" name="photo" type="file" class="form-control"> #}
+                <vue-uploader ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="['https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-53abc3cd8f3cdfafc58132e9506eb2fa6dcc5c3ffe39b08d9c90684f98bcffa5bd0c0fd70e63c4c558336dfbc5438c858f5df827fe54beed4ecd083c48c15893.jpeg']"></vue-uploader>
             </div>
             <button class="btn btn-primary">Save Product</button>
         </form>
@@ -47,10 +48,15 @@
 {% block scripts %}
 {{ super() }}
 <script src="{{app.url}}/js/vue.js"></script>
+<script src="{{app.url}}/js/vue-uploader.js"></script>
+<script src="{{app.url}}/js/pica.min.js"></script>
 <script>
     var app = new Vue({
         el: '#v-encode',
         delimiters: ["${", "}"],
+        components: {
+            'vue-uploader': VueUploader.bootstrap,
+        },
         data: {
             barcode: '',
             name: '',
