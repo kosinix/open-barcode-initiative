@@ -128,11 +128,25 @@ router.post('/product/edit', fileUpload(), middlewares.handleExpressUploadMagic,
     }
 });
 
-router.post('/product/upload', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
+router.post('/product/:barcode/photos', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
     try {
+        let files = req.saveList
+
         
+        let product = await db.web.Product.findOne({
+            barcode: req.params.barcode,
+        })
+        if(product){
+            lodash.each(files, (field, name) =>{
+                lodash.each(field, (file) =>{
+                    product.photos.push(file)
+                })
+            })
+            await product.save()
+        }
+
         return res.send({
-            saveList: req.saveList,
+            saveList: files,
         })
     } catch (err) {
         next(err);

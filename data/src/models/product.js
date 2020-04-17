@@ -15,7 +15,12 @@ let schema = mongoose.Schema({
     },
     photo: {
         type: String,
-    }
+    },
+    photos: [
+        {
+            type: String,
+        }
+    ],
 }, { timestamps: true });
 
 //// Instance methods

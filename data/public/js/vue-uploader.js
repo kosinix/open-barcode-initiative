@@ -216,11 +216,15 @@ VueUploader.bootstrap = {
         '</div>'
 };
 
+/**
+ * Example:
+ * <vue-uploader ref="photo" url="/product/upload" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onFileAdded" v-on:file-progress="onFileProgress" v-on:file-error="onFileError" v-on:file-uploaded="onFileUploaded" v-on:upload-complete="onUploadComplete"  id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
+ */
 VueUploader.ajax = {
     data: function () {
         return {
             UPLOADER_STATUS: { // Constants
-                READY: "ready", // No file in queue.
+                READY: "ready", // No file in queue. Waiting for files.
                 QUEUED: "queued", // At least 1 file queued.
                 UPLOADING: "uploading",
                 ERROR: "error",

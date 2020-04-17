@@ -36,12 +36,20 @@
                     <label for="description">Description</label>
                     <input v-model="product.description" id="description" name="description" type="text" class="form-control">
                 </div>
+                <div v-if="photos.length > 0" class="form-group uploaded-photos">
+                    <label for="photo">Product Photos</label>
+                    <div class="form-row">
+                        <div class="col" style="flex-grow:0" v-for="photo in photos">
+                            <img v-bind:src="photo" alt="photo">
+                        </div>
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="photo">Product Photo</label>
+                    <label for="photo">Upload Photos</label>
                     {# <input id="photo" name="photo" type="file" class="form-control"> #}
                     <vue-uploader v-on:uploader-created="onUploaderCreated"
                     v-on:uploader-error="onUploaderError"
-                    v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete"  url="/product/upload" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="['https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-53abc3cd8f3cdfafc58132e9506eb2fa6dcc5c3ffe39b08d9c90684f98bcffa5bd0c0fd70e63c4c558336dfbc5438c858f5df827fe54beed4ecd083c48c15893.jpeg']"></vue-uploader>
+                    v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete"  url="/product/{{product.barcode}}/photos" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
                 <button class="btn btn-primary">Save Product</button>
             </div>
@@ -69,40 +77,60 @@
             unit: '',
             description: '',
             photo: '',
+            photos: [],
         },
         created: function(){
             var barcode = getQuery('barcode')
             if(barcode){
                 this.barcode = barcode
             }
+            if(this.product.photos){
+                for(var x = 0; x < this.product.photos.length; x++){
+                    this.photos.push('https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-'+this.product.photos[x])
+                }
+            }
         },
         methods: {
             onUploaderCreated: function(e){
-                console.log('uploader-created', e)
+                //console.log('uploader-created', e)
             },
-            onUploaderError: function(errorMsg, uploader){
-                alert(errorMsg)
-                console.error('uploader-error', errorMsg, uploader)
+            onUploaderError: function(error, uploader){
+                alert(error.message)
+                //console.error('uploader-error', error.code, uploader)
             },
             onUploaderFileAdded: function(file, uploaderState){
-                console.log('file-added', file, uploaderState)
+                //console.log('file-added', file, uploaderState)
             },
             onUploadFileProgress: function(file, uploader, e){
-                console.log('file-progress', file, uploader, e)
+                //console.log('file-progress', file, uploader, e)
             },
             onUploadFileError: function(e){
-                console.log('file-error', e)
+                //console.log('file-error', e)
             },
             onUploadFileUploaded: function(file, uploader, e, response){
                 console.log('file-uploaded', file, uploader, e, response)
+                var me = this;
+
+                let r = JSON.parse(response)
+                let z = r.saveList[file.uid]
+                for(x = 0; x < z.length; x++ ){
+                    var src = z[x];
+                    me.photos.push('https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-' + src)
+                }
+                
             },
             onUploadComplete: function(file, uploader, e, response){
-                console.log('upload-complete', file, uploader, e, response)
+                var me = this;
+                me.$refs.form.submit();
             },
             onSubmit: function(){
                 var me = this;
                 me.$nextTick(function() {
-                    me.$refs.photo.uploadBatch();
+                    if(me.$refs.photo.status === 'queued'){
+                        me.$refs.photo.upload();
+                    } else {
+                        me.$refs.form.submit();
+                    }
                 });
             }
         }
