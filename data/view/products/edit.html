@@ -7,7 +7,7 @@
         <h3>Edit Product</h3>
         <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/edit" method="POST" enctype="multipart/form-data">
             <div v-if="!product">No product</div>
-            <div v-else>
+            <div v-else class="form-inner" v-bind:data-pending="pending">
                 <div class="form-group">
                     <label for="barcode">Barcode</label>
                     <input v-model="product.barcode" id="barcode" name="barcode" type="text" class="form-control">
@@ -39,8 +39,9 @@
                 <div v-if="photos.length > 0" class="form-group uploaded-photos">
                     <label for="photo">Product Photos</label>
                     <div class="form-row">
-                        <div class="col" style="flex-grow:0" v-for="photo in photos">
-                            <img v-bind:src="photo" alt="photo">
+                        <div class="col" style="flex-grow:0; position:relative;" v-for="photo in photos">
+                            <button v-on:click="deletePhoto(photo)" type="button" style="position:absolute; right:5px; top:0;" class="btn btn-sm btn-danger">x</button>
+                            <img v-bind:src="'https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-'+photo" alt="photo">
                         </div>
                     </div>
                 </div>
@@ -51,7 +52,7 @@
                     v-on:uploader-error="onUploaderError"
                     v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete"  url="/product/{{product.barcode}}/photos" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
-                <button class="btn btn-primary">Save Product</button>
+                <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
             </div>
         </form>
     </div>
@@ -59,6 +60,8 @@
 {% endblock %}
 {% block scripts %}
 {{ super() }}
+<script src="{{app.url}}/js/axios.min.js"></script>
+<script src="{{app.url}}/js/script-axios-util.js"></script>
 <script src="{{app.url}}/js/vue.js"></script>
 <script src="{{app.url}}/js/vue-uploader.js"></script>
 <script>
@@ -70,6 +73,7 @@
             'vue-uploader': VueUploader.ajax,
         },
         data: {
+            pending: false,
             product: {{product|stringify|safe}},
             barcode: '',
             name: '',
@@ -86,8 +90,16 @@
             }
             if(this.product.photos){
                 for(var x = 0; x < this.product.photos.length; x++){
-                    this.photos.push('https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-'+this.product.photos[x])
+                    this.photos.push(this.product.photos[x])
                 }
+            }
+        },
+        computed: {
+            btnLabel: function(){
+                if(this.pending){
+                    return 'Saving....'
+                }
+                return 'Save Product'
             }
         },
         methods: {
@@ -123,9 +135,28 @@
                 var me = this;
                 me.$refs.form.submit();
             },
+            deletePhoto: function(src){
+                var me = this;
+                me.pending = true;
+                
+                window.utils.axios.delete('/product/{{product._id}}/photo/'+src).then(function(response){
+                    console.log(response.data);
+                    var index = _.findKey(me.photos, (photo) => {
+                        return src === photo;
+                    });
+                    me.photos.splice(index, 1)
+                    alert("Photo removed.");
+
+                }).catch(function(error){
+                    handleAxiosError(error);
+                }).then(function(){
+                    me.pending = false;
+                });
+            },
             onSubmit: function(){
                 var me = this;
                 me.$nextTick(function() {
+                    me.pending = true;
                     if(me.$refs.photo.status === 'queued'){
                         me.$refs.photo.upload();
                     } else {

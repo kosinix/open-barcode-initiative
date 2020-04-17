@@ -8,6 +8,7 @@ const lodash = require('lodash');
 //// Modules
 const db = require('../db');
 const middlewares = require('../middlewares');
+const s3 = require('../awsS3')
 
 
 let router = express.Router();
@@ -118,10 +119,10 @@ router.post('/product/edit', fileUpload(), middlewares.handleExpressUploadMagic,
             await product.save()
         }
 
-        return res.send({
-            body: body,
-            files: files,
-        })
+        // return res.send({
+        //     body: body,
+        //     files: files,
+        // })
         return res.redirect('/products')
     } catch (err) {
         next(err);
@@ -152,6 +153,41 @@ router.post('/product/:barcode/photos', fileUpload(), middlewares.handleExpressU
         next(err);
     }
 });
+
+router.delete('/product/:productId/photo/:src', async (req, res, next) => {
+    try {
+        const bucketName = CONFIG.aws.bucket1.name
+        const bucketKeyPrefix = CONFIG.aws.bucket1.prefix 
+        const bucketKey = req.params.src
+        
+        let product = await db.web.Product.findById(req.params.productId)
+        if(!product){
+            throw new Error('Product not found.')
+        } else {
+            await s3.deleteObjects({
+                Bucket: bucketName,
+                Delete: {
+                    Objects: [
+                        {Key: `${bucketKeyPrefix}${bucketKey}`},
+                        {Key: `${bucketKeyPrefix}tiny-${bucketKey}`},
+                        {Key: `${bucketKeyPrefix}small-${bucketKey}`},
+                        {Key: `${bucketKeyPrefix}medium-${bucketKey}`},
+                        {Key: `${bucketKeyPrefix}large-${bucketKey}`},
+                    ]
+                }
+            }).promise()
+            product.photos = lodash.filter(product.photos, function(o) {
+                return bucketKey !== o;
+            });
+            await product.save()
+        }
+
+        return res.send(product.photos)
+    } catch (err) {
+        next(err);
+    }
+});
+
 
 router.get('/products', async (req, res, next) => {
     try {

@@ -18,3 +18,8 @@ function handleAxiosError(error) {
     alert(ret);
     return ret;
 }
+
+window.utils = {}
+window.utils.axios = axios.create({
+    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+});

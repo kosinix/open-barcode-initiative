@@ -14,6 +14,9 @@ router.use(require('../src/routes/public'));
 
 // 404 Page
 router.use((req, res) => {
+    if(req.xhr){
+        return res.status(404).send(`Resource "${req.method} ${req.originalUrl}" not found.`);
+    }
     res.status(404).render('error.html', { error: "Page not found." });
 });
 
