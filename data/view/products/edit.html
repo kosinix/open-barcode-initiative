@@ -63,14 +63,14 @@
 <script src="{{app.url}}/js/axios.min.js"></script>
 <script src="{{app.url}}/js/script-axios-util.js"></script>
 <script src="{{app.url}}/js/vue.js"></script>
-<script src="{{app.url}}/js/vue-uploader.js"></script>
+<script src="{{app.url}}/js/pica.min.js"></script>
+<script src="{{app.url}}/js/vue-uploader-pica.js"></script>
 <script>
     var app = new Vue({
         el: '#v-encode',
         delimiters: ["${", "}"],
         components: {
-            {# 'vue-uploader': VueUploader.bootstrap, #}
-            'vue-uploader': VueUploader.ajax,
+            'vue-uploader': VueUploader.pica,
         },
         data: {
             pending: false,

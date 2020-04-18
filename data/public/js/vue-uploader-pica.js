@@ -2,13 +2,15 @@
 if(typeof VueUploader === 'undefined'){
     function VueUploader() {}
 }
-VueUploader.bootstrap = {
+
+VueUploader.pica = {
     data: function () {
         return {
             UPLOADER_STATUS: { // Constants
-                READY: "queued", // No file in queue.
+                READY: "ready", // No file in queue. Waiting for files.
                 QUEUED: "queued", // At least 1 file queued.
                 UPLOADING: "uploading",
+                ERROR: "error",
             },
             FILE_STATUS: { // Constants
                 QUEUED: "queued", // File queued and ready to be uploaded
@@ -17,7 +19,9 @@ VueUploader.bootstrap = {
                 UPLOADED: "uploaded" // On server
             },
             disabled: false,
-            files: []
+            fileField: null, // The <input type="file" element
+            files: [],
+            status: '',
         }
     },
     props: {
@@ -27,6 +31,11 @@ VueUploader.bootstrap = {
             required: true
         },
         name: {
+            default: '',
+            type: String,
+            required: true
+        },
+        url: {
             default: '',
             type: String,
             required: true
@@ -62,33 +71,25 @@ VueUploader.bootstrap = {
         defaultFiles: {
             default: [],
             type: Array
-        },
-        previewCss: {
-            default: "max-width:150px",
-            type: String
         }
     },
     created: function () {
+        var me = this;
+        for (var i = 0; i < me.defaultFiles.length; i++) {
+            me.defaultFiles[i] = {
+                uid: me.genUid(),
+                imageData: me.defaultFiles[i],
+                status: me.FILE_STATUS.UPLOADED
+            };
+        }
+        me.defaultFiles = me.defaultFiles;
+        me.status = me.UPLOADER_STATUS.READY;
+        window.resizer = window.pica();
+
+        me.$emit('uploader-created', me.uploaderState());
 
     },
     computed: {
-        uploadedFiles: function () {
-            var files = [];
-            for (var i = 0; i < this.defaultFiles.length; i++) {
-                var imageData = this.defaultFiles[i];
-                if (imageData) {
-                    if (this.defaultFiles[i].indexOf('.pdf') !== -1) {
-                        imageData = this.fileIcon
-                    }
-                    files.push({
-                        uid: this.genUid(),
-                        imageData: imageData,
-                        status: this.FILE_STATUS.UPLOADED
-                    })
-                }
-            }
-            return files;
-        },
         fileSizeLimit: function () {
             return parseInt(this.fileSize);
         },
@@ -110,6 +111,16 @@ VueUploader.bootstrap = {
             }
             return text;
         },
+        uploaderState: function () {
+            var me = this;
+            return {
+                id: me.id,
+                name: me.name,
+                defaultFiles: me.defaultFiles,
+                files: me.files,
+                status: me.status
+            };
+        },
         addFile: function (file) {
             var me = this;
 
@@ -127,25 +138,53 @@ VueUploader.bootstrap = {
                 lastModifiedDate: file.lastModifiedDate // Last modified date. Instance of native Date
             };
 
-
             me.files.push(fileWrapper);
-
-            var uploaderRep = {
-                id: me.id,
-                name: me.name,
-                status: me.status
-            };
+            me.status = me.UPLOADER_STATUS.QUEUED;
 
             // Check if FileReader exist
             if (typeof FileReader !== "undefined" && ['image/png', 'image/jpeg', 'image/jpg'].indexOf(file.type) !== -1) {
                 var reader = new FileReader();
-                reader.onload = function (e) {
-                    fileWrapper.imageData = e.target.result;
-                    me.$emit('file-added', fileWrapper, uploaderRep);
+                // Note: Async code in callback!
+                reader.onload = function (readerEvent) {
+                    
+
+                    var image = new Image();
+                    image.onload = function (imageEvent) {
+                        var destW = 1000;
+                        var destH = 1000;
+                        var newW = destW
+                        var newH = destH
+                        if(image.width > image.height){
+                            newH = Math.floor(image.height / image.width * newW)
+                        }
+                        if(image.width < image.height){
+                            newW = Math.floor(image.width / image.height * newH)
+                        }
+                        var offScreenCanvas = document.createElement('canvas')
+                        offScreenCanvas.width  = newW;
+                        offScreenCanvas.height = newH;
+
+                        window.resizer.resize(image, offScreenCanvas, {
+                            alpha: true,
+                        })
+                        .then(function () {
+                            fileWrapper.imageData = offScreenCanvas.toDataURL('image/jpeg');
+                            offScreenCanvas.toBlob(function(blob){
+                                fileWrapper.blob = blob
+                                me.$emit('file-added', fileWrapper, me.uploaderState());
+
+                            });
+                        })
+                        .catch(function (err) {
+                            console.log(err);
+                        });
+                    }
+                    image.src = readerEvent.target.result;
+
                 }
                 reader.readAsDataURL(file);
             } else {
-                me.$emit('file-added', fileWrapper, uploaderRep);
+                me.$emit('file-added', fileWrapper, me.uploaderState());
             }
         },
         browseFile: function (event) {
@@ -158,6 +197,8 @@ VueUploader.bootstrap = {
             }
 
             if (files) {
+                me.fileField = event.target;
+
                 // Remove all from component
                 me.files = [];
 
@@ -166,7 +207,10 @@ VueUploader.bootstrap = {
 
                     // Remove all FileList content
                     event.target.value = "";
-                    return alert('Maximum of ' + this.maxCount + ' file(s) only');
+                    var error = new Error('Maximum of ' + this.maxCount + ' file(s) only');
+                    error.code = 1010;
+                    me.$emit('uploader-error', error, me.uploaderState());
+                    return;
                 }
 
                 var count = files.length;
@@ -176,12 +220,18 @@ VueUploader.bootstrap = {
                     if (files[i].size > me.fileSizeLimit) {
                         // Remove all FileList content
                         event.target.value = "";
-                        return alert('File must not exceed ' + this.fileSizeLimit / 1000000 + ' MB');
+                        var error = new Error('File must not exceed ' + this.fileSizeLimit / 1000000 + ' MB');
+                        error.code = 1020;
+                        me.$emit('uploader-error', error, me.uploaderState());
+                        return;
                     }
                     if (accepted.indexOf(files[i].type) === -1) {
                         // Remove all FileList content
                         event.target.value = "";
-                        return alert('File type not allowed. Must be one of the following: ' + me.accept);
+                        var error = new Error('File type not allowed. Must be one of the following: ' + me.accept);
+                        error.code = 1030;
+                        me.$emit('uploader-error', error, me.uploaderState());
+                        return;
                     }
                 }
 
@@ -192,20 +242,96 @@ VueUploader.bootstrap = {
 
             }
         },
+        uploadFile: function (file, index) {
+            var me = this;
+            if (file.status === me.FILE_STATUS.UPLOADED || file.status === me.FILE_STATUS.UPLOADING) return;
+
+            var xhr = new XMLHttpRequest();
+
+            (xhr.upload || xhr).addEventListener('progress', function (e) {
+                var current = e.position || e.loaded
+                var total = e.totalSize || e.total;
+
+                file.status = me.FILE_STATUS.UPLOADING;
+                file.uploaded = current;
+                file.percent = Math.round(current / total * 100);
+                me.status = me.UPLOADER_STATUS.UPLOADING;
+                me.$emit('file-progress', file, me.uploaderState(), e);
+            });
+            xhr.addEventListener('error', function (e) {
+                file.status = me.FILE_STATUS.ERROR;
+                me.status = me.UPLOADER_STATUS.ERROR;
+                me.$emit('file-error', file, me.uploaderState(), e);
+            });
+            xhr.addEventListener('abort', function (e) {
+                file.status = me.FILE_STATUS.ERROR;
+                me.status = me.UPLOADER_STATUS.ERROR;
+                me.$emit('file-abort', file, me.uploaderState(), e);
+            });
+            xhr.addEventListener('load', function (e) {
+                var response = this.responseText;
+                file.status = me.FILE_STATUS.UPLOADED;
+                me.$emit('file-uploaded', file, me.uploaderState(), e, response); // response
+
+                var count = me.files.length;
+                var done = true;
+                for (var x = 0; x < count; x++) {
+                    var f = me.files[x];
+                    if (f.status !== me.FILE_STATUS.UPLOADED) {
+                        done = false; // If at least one is not uploaded, not done!
+                    }
+                }
+
+                if (done) {
+                    me.fileField.value = ""; // Remove contents
+                    me.status = me.UPLOADER_STATUS.READY;
+                    me.$emit('upload-complete', me.files, me.uploaderState(), e, response)
+                }
+            });
+            xhr.open('post', me.url, true); // Async 3rd arg
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // For express req.xhr
+
+            var formData = new FormData();
+            formData.append(file.uid, file.blob);
+
+            xhr.send(formData);
+        },
+        uploadBatch: function () {
+            var me = this;
+
+            if(me.status !== me.UPLOADER_STATUS.QUEUED) {
+                var error = new Error('Nothing to upload.');
+                error.code = 1040;
+                me.$emit('uploader-error', error, me.uploaderState());
+                return;
+            }
+
+            var count = me.files.length;
+            for (var x = 0; x < count; x++) {
+                var file = me.files[x];
+                me.uploadFile(file, x);
+            }
+        },
+        upload: function () {
+            var me = this;
+
+            me.uploadBatch();
+        },
     },
     template: '' +
         '<div v-bind:class="className">' +
-        '<div class="vup-files row">' +
-        '<div class="vup-file col ml-auto mr-auto" v-if="files.length<=0">' +
-        '<div v-for="file in uploadedFiles" class="vup-file col ml-auto mr-auto" v-bind:data-status="file.status" v-bind:style="previewCss">' +
-        '<div class="vup-info text-center">' +
-        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%; margin-bottom: 10px">' +
+        '<div class="vup-files row" style="margin-bottom:5px;">' +
+        '<div v-for="file in defaultFiles" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
+        '<div class="vup-info">' +
+        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
         '</div>' +
         '</div>' +
+        '<div v-for="file in files" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
+        '<div class="vup-info">' +
+        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
+        '<div style="position:relative; height: 3px">' +
+        '<div v-bind:style="\'position:absolute; background:orange; height:3px; left: 0; top: 0; width:\'+file.percent+\'%\'"></div>' +
         '</div>' +
-        '<div v-for="file in files" class="vup-file col ml-auto mr-auto" v-bind:data-status="file.status" v-bind:style="previewCss">' +
-        '<div class="vup-info text-center">' +
-        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%; margin-bottom: 10px">' +
         '</div>' +
         '</div>' +
         '</div>' +

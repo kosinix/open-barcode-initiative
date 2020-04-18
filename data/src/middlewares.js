@@ -16,8 +16,8 @@ let handleExpressUploadMagic = async (req, res, next) => {
 
         let uploadList = uploader.generateUploadList(imageVariants, localFiles)
         let saveList = uploader.generateSaveList(imageVariants, localFiles)
-        await uploader.uploadToS3Async(uploadList)
-        await uploader.deleteUploadsAsync(localFiles, imageVariants)
+        // await uploader.uploadToS3Async(uploadList)
+        // await uploader.deleteUploadsAsync(localFiles, imageVariants)
         req.localFiles = localFiles
         req.imageVariants = imageVariants
         req.saveList = saveList
