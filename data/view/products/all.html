@@ -29,7 +29,11 @@
                         </td>
                         <td>{{product.name}}</td>
                         <td>{{product.size}} {{product.unit}}</td>
-                        <td><img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{product.photos[0]}}" alt=""></td>
+                        <td>
+                            {% if product.photo and product.photos.length > 0 %}
+                                <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{product.photos[0]}}" alt="">
+                            {% endif %}
+                        </td>
                     </tr>
                     {% endfor %}
                 </table>
