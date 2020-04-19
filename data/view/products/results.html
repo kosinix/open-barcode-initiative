@@ -40,7 +40,7 @@
         {% else %}
             <p class="mb-5">No products found for this barcode.</p>
             
-            <h3 class="pt-5">Other products</h3>
+            <h3 class="pt-5">Other products (Showing some out of {{productsCount}} total encoded products)</h3>
             <div class="table-responsive-sm">
                 <table class="table">
                     <tr>
@@ -50,27 +50,29 @@
                         <th></th>
                     </tr>
                     {% for product in allProducts %}
-                    <tr>
-                        <td>
-                            {% if product.photos and product.photos.length > 0 %}
-                                {% for photo in product.photos %}
-                                    <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="">
-                                {% endfor %}
-                            {% endif %}
-                        </td>
-                        <td>{{product.name}}</td>
-                        <td>{{product.size}} {{product.unit}}</td>
-                        <td>
-                            <svg class="barcode"
-                                jsbarcode-format="EAN13"
-                                jsbarcode-value="{{product.barcode}}"
-                                jsbarcode-width="2"
-                                jsbarcode-height="60"
-                                jsbarcode-textmargin="0"
-                                jsbarcode-fontoptions="bold">
-                            </svg>
-                        </td>
-                    </tr>
+                        {% if loop.index <= 30 %}
+                        <tr>
+                            <td>
+                                {% if product.photos and product.photos.length > 0 %}
+                                    {% for photo in product.photos %}
+                                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="">
+                                    {% endfor %}
+                                {% endif %}
+                            </td>
+                            <td>{{product.name}}</td>
+                            <td>{{product.size}} {{product.unit}}</td>
+                            <td>
+                                <svg class="barcode"
+                                    jsbarcode-format="EAN13"
+                                    jsbarcode-value="{{product.barcode}}"
+                                    jsbarcode-width="2"
+                                    jsbarcode-height="60"
+                                    jsbarcode-textmargin="0"
+                                    jsbarcode-fontoptions="bold">
+                                </svg>
+                            </td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                 </table>
             </div>

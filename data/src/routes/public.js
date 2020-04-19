@@ -126,11 +126,14 @@ router.get('/results', async (req, res, next) => {
             barcode: {
                 $ne: barcode,
             }
-        })
+        }).limit(10)
+
+        let productsCount = await db.web.Product.count()
 
         res.render('products/results.html', {
             products: products,
             allProducts: allProducts,
+            productsCount: productsCount,
         })
     } catch (err) {
         next(err);
