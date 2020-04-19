@@ -5,30 +5,25 @@
     <div class="col-md-12" id="vApp">
         <h3>Products</h3>
         {% if products and products.length > 0 %}
+            <div class="mb-2 text-center">
+                <svg class="barcode"
+                    jsbarcode-format="EAN13"
+                    jsbarcode-value="{{products[0].barcode}}"
+                    jsbarcode-width="2"
+                    jsbarcode-height="60"
+                    jsbarcode-textmargin="0"
+                    jsbarcode-fontoptions="bold">
+                </svg>
+            </div>
             <div class="table-responsive-sm">
                 <table class="table">
                     <tr>
-                        <th>Barcode</th>
-                        <th>Name</th>
+                        <th>Photo(s)</th>
+                        <th>Common Name</th>
                         <th>Size</th>
-                        <th>Photo</th>
                     </tr>
                     {% for product in products %}
                     <tr>
-                        <td>
-                            <a href="/product/edit?barcode={{product.barcode}}">  
-                                <svg class="barcode"
-                                    jsbarcode-format="EAN13"
-                                    jsbarcode-value="{{product.barcode}}"
-                                    jsbarcode-width="2"
-                                    jsbarcode-height="60"
-                                    jsbarcode-textmargin="0"
-                                    jsbarcode-fontoptions="bold">
-                                </svg>
-                            </a> 
-                        </td>
-                        <td>{{product.name}}</td>
-                        <td>{{product.size}} {{product.unit}}</td>
                         <td>
                             {% if product.photos and product.photos.length > 0 %}
                                 {% for photo in product.photos %}
@@ -36,6 +31,8 @@
                                 {% endfor %}
                             {% endif %}
                         </td>
+                        <td>{{product.name}}</td>
+                        <td>{{product.size}} {{product.unit}}</td>
                     </tr>
                     {% endfor %}
                 </table>
