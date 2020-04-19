@@ -122,8 +122,15 @@ router.get('/results', async (req, res, next) => {
             barcode: barcode,
         })
 
+        let allProducts = await db.web.Product.find({
+            barcode: {
+                $ne: barcode,
+            }
+        })
+
         res.render('products/results.html', {
-            products: products
+            products: products,
+            allProducts: allProducts,
         })
     } catch (err) {
         next(err);
