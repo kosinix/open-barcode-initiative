@@ -27,7 +27,7 @@
         }
     },
     "session": {
-        "name": "connect.ec.sid",
+        "name": "open.barcode.sid",
         "store": {
             "db": "sessions.db",
             "dir": "${APP_DIR}/data"
@@ -63,5 +63,13 @@
                 "dbName": "barcode"
             }
         }
+    },
+    "userSession": {
+        "allowedUrls": [
+            "/",
+            "/products",
+            "/product/create",
+            "/product/edit"
+        ]
     }
 }

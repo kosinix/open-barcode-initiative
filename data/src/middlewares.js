@@ -27,6 +27,24 @@ let handleExpressUploadMagic = async (req, res, next) => {
     }
 }
 
+let requireAuth = async (req, res, next) => {
+    try {
+        let user = lodash.get(req, 'session.user')
+        if (!user) {
+            if (CONFIG.userSession.allowedUrls.includes(req.originalUrl)) {
+                lodash.set(req, 'session.auth.loginRedirect', req.originalUrl)
+            }
+
+            return res.redirect('/login')
+        }
+
+        next()
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
-    handleExpressUploadMagic: handleExpressUploadMagic
+    handleExpressUploadMagic: handleExpressUploadMagic,
+    requireAuth: requireAuth,
 }

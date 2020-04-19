@@ -26,6 +26,7 @@ web.on('disconnected', () => {
 });
 
 web.Product = web.model('Product', require('./models/product'));
+web.User = web.model('User', require('./models/user'));
 
 module.exports = {
     mongoose: mongoose,

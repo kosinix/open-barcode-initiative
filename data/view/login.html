@@ -1,0 +1,24 @@
+{% extends "document.html" %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-4 col-sm-12 ml-auto mr-auto" id="vApp">
+        <h1>Login</h1>
+        <form action="/login" method="POST">
+            {% include "parts/flash.html" %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" required class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" required class="form-control">
+            </div>
+            <div class="form-group">
+                <button class="btn btn-primary">Login</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

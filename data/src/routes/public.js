@@ -8,7 +8,7 @@ const lodash = require('lodash');
 //// Modules
 const db = require('../db');
 const middlewares = require('../middlewares');
-const s3 = require('../awsS3')
+const flash = require('../flash')
 
 
 let router = express.Router();
@@ -17,6 +17,60 @@ router.get('/', async (req, res, next) => {
     try {
         res.render('index.html', {
         })
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/login', async (req, res, next) => {
+    try {
+        // let salt = 'QJJjfkW3GDY8Vrvm7bHtwYawsA74Y6X3'
+        // let passwordHash = db.web.User.hashPassword('NicO2020?', salt)
+
+        // let user = new db.web.User({
+        //     username: 'kosinix',
+        //     passwordHash: passwordHash,
+        //     passwordSalt: salt
+        // })
+        // await user.save()
+        res.render('login.html', {
+            flash: flash.get(req, 'login')
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/login', async (req, res, next) => {
+    try {
+        let user = await db.web.User.findOne({
+            username: req.body.username,
+        })
+
+        if (!user) {
+            console.log('User not found.')
+            flash.error(req, 'login', 'User not found.')
+            return res.redirect('/login')
+        }
+
+        let passwordHash = db.web.User.hashPassword(req.body.password, user.passwordSalt)
+        if (user.passwordHash !== passwordHash) {
+            console.log('Password incorrect.')
+            flash.error(req, 'login', 'Password incorrect.')
+            return res.redirect('/login')
+        }
+
+        lodash.set(req, 'session.user', user.toObject())
+        // let loginRedirect = lodash.get(req, 'session.auth.loginRedirect', '/products')
+        res.redirect('/products')
+    } catch (err) {
+        next(err);
+    }
+});
+router.get('/logout', async (req, res, next) => {
+    try {
+        lodash.set(req, 'session.user', null);
+        res.clearCookie(CONFIG.session.name, CONFIG.session.cookie);
+        res.redirect('/')
     } catch (err) {
         next(err);
     }
@@ -33,14 +87,14 @@ router.get('/scan', async (req, res, next) => {
 
 router.post('/scan', async (req, res, next) => {
     try {
-        
+
         let body = req.body
 
         let products = await db.web.Product.find({
             barcode: body.barcode,
         })
         console.log(products)
-        if(products && products.length <= 0){
+        if (products && products.length <= 0) {
             return res.redirect(`/product/create?barcode=${body.barcode}`)
         }
         res.redirect(`/product/edit?barcode=${body.barcode}`)
@@ -50,157 +104,7 @@ router.post('/scan', async (req, res, next) => {
     }
 });
 
-router.get('/product/create', async (req, res, next) => {
-    try {
-        
-        res.render('products/create.html')
-    } catch (err) {
-        next(err);
-    }
-});
-router.post('/product/create', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
-    try {
-        
-        let body = req.body
-        let files = req.saveList
 
-        let product = new db.web.Product({
-            barcode: body.barcode,
-            name: body.name,
-            size: body.size,
-            unit: body.unit,
-        })
-        if(lodash.has(files, 'photo.0')){
-            product.photo = files.photo[0]
-        }
-
-        await product.save()
-        
-        return res.redirect('/products')
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.get('/product/edit', async (req, res, next) => {
-    try {
-        let barcode = lodash.get(req.query, 'barcode')
-        let product = await db.web.Product.findOne({
-            barcode: barcode
-        })
-        if(product){
-            product = product.toObject()
-        }
-        res.render('products/edit.html', {
-            product: product
-        })
-    } catch (err) {
-        next(err);
-    }
-});
-router.post('/product/edit', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
-    try {
-        
-        let body = req.body
-        let files = req.saveList
-
-        
-        let product = await db.web.Product.findOne({
-            barcode: body.barcode,
-        })
-        if(product){
-            product.name = body.name
-            product.size = body.size
-            product.unit = body.unit
-            product.description = body.description
-            if(lodash.has(files, 'photo.0')){
-                product.photo = files.photo[0]
-            }
-            await product.save()
-        }
-
-        // return res.send({
-        //     body: body,
-        //     files: files,
-        // })
-        return res.redirect('/products')
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.post('/product/:barcode/photos', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
-    try {
-        let files = req.saveList
-
-        
-        let product = await db.web.Product.findOne({
-            barcode: req.params.barcode,
-        })
-        if(product){
-            lodash.each(files, (field, name) =>{
-                lodash.each(field, (file) =>{
-                    product.photos.push(file)
-                })
-            })
-            await product.save()
-        }
-
-        return res.send({
-            saveList: files,
-        })
-    } catch (err) {
-        next(err);
-    }
-});
-
-router.delete('/product/:productId/photo/:src', async (req, res, next) => {
-    try {
-        const bucketName = CONFIG.aws.bucket1.name
-        const bucketKeyPrefix = CONFIG.aws.bucket1.prefix 
-        const bucketKey = req.params.src
-        
-        let product = await db.web.Product.findById(req.params.productId)
-        if(!product){
-            throw new Error('Product not found.')
-        } else {
-            await s3.deleteObjects({
-                Bucket: bucketName,
-                Delete: {
-                    Objects: [
-                        {Key: `${bucketKeyPrefix}${bucketKey}`},
-                        {Key: `${bucketKeyPrefix}tiny-${bucketKey}`},
-                        {Key: `${bucketKeyPrefix}small-${bucketKey}`},
-                        {Key: `${bucketKeyPrefix}medium-${bucketKey}`},
-                        {Key: `${bucketKeyPrefix}large-${bucketKey}`},
-                    ]
-                }
-            }).promise()
-            product.photos = lodash.filter(product.photos, function(o) {
-                return bucketKey !== o;
-            });
-            await product.save()
-        }
-
-        return res.send(product.photos)
-    } catch (err) {
-        next(err);
-    }
-});
-
-
-router.get('/products', async (req, res, next) => {
-    try {
-        let products = await db.web.Product.find({
-    
-        })
-        res.render('products/all.html', {
-            products: products
-        })
-    } catch (err) {
-        next(err);
-    }
-});
 
 
 

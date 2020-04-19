@@ -2,7 +2,6 @@
 
 //// External modules
 const express = require('express');
-const moment = require('moment');
 
 //// Modules
 
@@ -10,6 +9,7 @@ const moment = require('moment');
 let router = express.Router();
 
 router.use(require('../src/routes/public'));
+router.use(require('../src/routes/protected'));
 
 
 // 404 Page
