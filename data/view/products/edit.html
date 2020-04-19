@@ -48,9 +48,7 @@
                 <div class="form-group">
                     <label for="photo">Upload Photos</label>
                     {# <input id="photo" name="photo" type="file" class="form-control"> #}
-                    <vue-uploader v-on:uploader-created="onUploaderCreated"
-                    v-on:uploader-error="onUploaderError"
-                    v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete"  url="/product/{{product.barcode}}/photos" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
+                    <vue-uploader url="/product/{{product.barcode}}/photos" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
                 <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
             </div>

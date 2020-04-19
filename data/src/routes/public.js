@@ -84,21 +84,47 @@ router.get('/scan', async (req, res, next) => {
         next(err);
     }
 });
-
+router.get('/input', async (req, res, next) => {
+    try {
+        res.render('input.html', {
+        })
+    } catch (err) {
+        next(err);
+    }
+});
 router.post('/scan', async (req, res, next) => {
     try {
-
         let body = req.body
+        let user = lodash.get(req, 'session.user')
+
+        if (user) {
+
+            let products = await db.web.Product.find({
+                barcode: body.barcode,
+            })
+            if (products && products.length <= 0) {
+                return res.redirect(`/product/create?barcode=${body.barcode}`)
+            }
+            return res.redirect(`/product/edit?barcode=${body.barcode}`)
+        }
+
+        return res.redirect(`/results?barcode=${body.barcode}`)
+    } catch (err) {
+        next(err);
+    }
+});
+
+router.get('/results', async (req, res, next) => {
+    try {
+        let barcode = lodash.get(req, 'query.barcode')
 
         let products = await db.web.Product.find({
-            barcode: body.barcode,
+            barcode: barcode,
         })
-        console.log(products)
-        if (products && products.length <= 0) {
-            return res.redirect(`/product/create?barcode=${body.barcode}`)
-        }
-        res.redirect(`/product/edit?barcode=${body.barcode}`)
 
+        res.render('products/results.html', {
+            products: products
+        })
     } catch (err) {
         next(err);
     }
