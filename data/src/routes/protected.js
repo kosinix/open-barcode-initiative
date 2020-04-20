@@ -21,11 +21,10 @@ router.get('/product/create', async (req, res, next) => {
         next(err);
     }
 });
-router.post('/product/create', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
+router.post('/product/create', async (req, res, next) => {
     try {
         
         let body = req.body
-        let files = req.saveList
 
         let product = new db.web.Product({
             barcode: body.barcode,
@@ -33,13 +32,10 @@ router.post('/product/create', fileUpload(), middlewares.handleExpressUploadMagi
             size: body.size,
             unit: body.unit,
         })
-        if(lodash.has(files, 'photo.0')){
-            product.photo = files.photo[0]
-        }
 
         await product.save()
         
-        return res.redirect('/products')
+        return res.redirect(`/product/edit?barcode=${product.barcode}`)
     } catch (err) {
         next(err);
     }

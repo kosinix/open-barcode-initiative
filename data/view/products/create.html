@@ -6,7 +6,7 @@
     <div class="col-md-12" id="vApp">
         <h3>Encode Product</h3>
         
-        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/create" method="POST" enctype="multipart/form-data">
+        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/create" method="POST">
             <div class="form-group">
                 <label for="barcode">Barcode</label>
                 <input v-model="barcode" id="barcode" name="barcode" type="text" class="form-control">
@@ -31,15 +31,6 @@
                     </div> 
                 </div>
             </div>
-            <div class="form-group">
-                <label for="description">Description</label>
-                <input v-model="description" id="description" name="description" type="text" class="form-control">
-            </div>
-            <div class="form-group">
-                <label for="photo">Product Photo</label>
-                {# <input id="photo" name="photo" type="file" class="form-control"> #}
-                <vue-uploader url="/" v-on:file-added="onFileAdded" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
-            </div>
             <button class="btn btn-primary">Save Product</button>
         </form>
     </div>
@@ -48,14 +39,11 @@
 {% block scripts %}
 {{ super() }}
 <script src="{{app.url}}/js/vue.js"></script>
-<script src="{{app.url}}/js/pica.min.js"></script>
-<script src="{{app.url}}/js/vue-uploader-pica.js"></script>
 <script>
     var app = new Vue({
         el: '#v-encode',
         delimiters: ["${", "}"],
         components: {
-            'vue-uploader': VueUploader.pica,
         },
         data: {
             barcode: '',
@@ -72,9 +60,6 @@
             }
         },
         methods: {
-            onFileAdded: function(f) {
-                console.log(f)
-            },
             onSubmit: function(){
                 var me = this;
                 me.$nextTick(function() {
