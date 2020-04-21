@@ -1,6 +1,6 @@
 // Define a new component
-if(typeof VueUploader === 'undefined'){
-    function VueUploader() {}
+if (typeof VueUploader === 'undefined') {
+    function VueUploader() { }
 }
 
 VueUploader.pica = {
@@ -13,6 +13,7 @@ VueUploader.pica = {
                 ERROR: "error",
             },
             FILE_STATUS: { // Constants
+                CRUNCHING: "crunching", // File being resized in the browser.
                 QUEUED: "queued", // File queued and ready to be uploaded
                 UPLOADING: "uploading", // 
                 ERROR: "error", // An error occured during upload
@@ -65,10 +66,10 @@ VueUploader.pica = {
             type: String
         },
         multiple: {
-            default: "false",
+            default: "false", // Multiple file selection
             type: String
         },
-        defaultFiles: {
+        defaultFiles: { // Full url of files
             default: [],
             type: Array
         }
@@ -84,7 +85,6 @@ VueUploader.pica = {
         }
         me.defaultFiles = me.defaultFiles;
         me.status = me.UPLOADER_STATUS.READY;
-        window.resizer = window.pica();
 
         me.$emit('uploader-created', me.uploaderState());
 
@@ -97,7 +97,7 @@ VueUploader.pica = {
             return parseInt(this.max);
         },
         isMultiple: function () {
-            return (this.multiple) ? true : false;
+            return (this.multiple === "true" || this.multiple === true)
         }
     },
     methods: {
@@ -142,45 +142,40 @@ VueUploader.pica = {
             me.status = me.UPLOADER_STATUS.QUEUED;
 
             // Check if FileReader exist
-            if (typeof FileReader !== "undefined" && ['image/png', 'image/jpeg', 'image/jpg'].indexOf(file.type) !== -1) {
+            if (typeof FileReader !== "undefined" && ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'].indexOf(file.type) !== -1) {
                 var reader = new FileReader();
                 // Note: Async code in callback!
                 reader.onload = function (readerEvent) {
-                    
-
                     var image = new Image();
                     image.onload = function (imageEvent) {
-                        var destW = 1000;
-                        var destH = 1000;
-                        var newW = destW
-                        var newH = destH
-                        if(image.width > image.height){
-                            newH = Math.floor(image.height / image.width * newW)
-                        }
-                        if(image.width < image.height){
-                            newW = Math.floor(image.width / image.height * newH)
-                        }
-                        var offScreenCanvas = document.createElement('canvas')
-                        offScreenCanvas.width  = newW;
-                        offScreenCanvas.height = newH;
-
-                        window.resizer.resize(image, offScreenCanvas, {
-                            alpha: true,
-                        })
-                        .then(function () {
-                            fileWrapper.imageData = offScreenCanvas.toDataURL('image/jpeg');
-                            offScreenCanvas.toBlob(function(blob){
+                        try {
+                            var destW = 1000;
+                            var destH = 1000;
+                            var newW = destW
+                            var newH = destH
+                            if (image.width > image.height) {
+                                newH = Math.floor(image.height / image.width * newW)
+                            }
+                            if (image.width < image.height) {
+                                newW = Math.floor(image.width / image.height * newH)
+                            }
+                            var offScreenCanvas = document.createElement('canvas')
+                            var ctx = offScreenCanvas.getContext("2d");
+                            offScreenCanvas.width = newW;
+                            offScreenCanvas.height = newH;
+                            ctx.drawImage(image, 0, 0, image.width, image.height, 0, 0, offScreenCanvas.width, offScreenCanvas.height);
+                            ctx.imageSmoothingEnabled = true;
+                            fileWrapper.imageData = offScreenCanvas.toDataURL('image/jpeg')
+                            offScreenCanvas.toBlob(function (blob) {
                                 fileWrapper.blob = blob
                                 me.$emit('file-added', fileWrapper, me.uploaderState());
-
                             });
-                        })
-                        .catch(function (err) {
-                            console.log(err);
-                        });
+                        } catch (err) { // fallback
+                            me.$emit('file-added', fileWrapper, me.uploaderState());
+                        }
+                            
                     }
                     image.src = readerEvent.target.result;
-
                 }
                 reader.readAsDataURL(file);
             } else {
@@ -269,7 +264,14 @@ VueUploader.pica = {
                 me.$emit('file-abort', file, me.uploaderState(), e);
             });
             xhr.addEventListener('load', function (e) {
+                var status = this.status;
                 var response = this.responseText;
+
+                if(status !== 200){
+                    file.status = me.FILE_STATUS.ERROR;
+                    me.$emit('file-error', file, me.uploaderState(), e, response);
+                    return false
+                }
                 file.status = me.FILE_STATUS.UPLOADED;
                 me.$emit('file-uploaded', file, me.uploaderState(), e, response); // response
 
@@ -292,14 +294,18 @@ VueUploader.pica = {
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // For express req.xhr
 
             var formData = new FormData();
-            formData.append(file.uid, file.blob);
+            if(file.blob !== undefined){
+                formData.append(me.name, file.blob);
+            } else {
+                formData.append(me.name, file.file);
+            }
 
             xhr.send(formData);
         },
         uploadBatch: function () {
             var me = this;
 
-            if(me.status !== me.UPLOADER_STATUS.QUEUED) {
+            if (me.status !== me.UPLOADER_STATUS.QUEUED) {
                 var error = new Error('Nothing to upload.');
                 error.code = 1040;
                 me.$emit('uploader-error', error, me.uploaderState());
@@ -320,24 +326,24 @@ VueUploader.pica = {
     },
     template: '' +
         '<div v-bind:class="className">' +
-        '<div class="vup-files row" style="margin-bottom:5px;">' +
-        '<div v-for="file in defaultFiles" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
-        '<div class="vup-info">' +
-        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
-        '</div>' +
-        '</div>' +
-        '<div v-for="file in files" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
-        '<div class="vup-info">' +
-        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
-        '<div style="position:relative; height: 3px">' +
-        '<div v-bind:style="\'position:absolute; background:orange; height:3px; left: 0; top: 0; width:\'+file.percent+\'%\'"></div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '</div>' +
-        '<div class="custom-file">' +
-        '<input v-on:change="browseFile" type="file" class="custom-file-input" v-bind:id="id" v-bind:name="name" v-bind:multiple="isMultiple" v-bind:accept="accept">' +
-        '<label class="custom-file-label" v-bind:for="id">{{label}}</label>' +
-        '</div>' +
+            '<div class="vup-files row" style="margin-bottom:5px;">' +
+                '<div v-for="file in defaultFiles" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
+                    '<div class="vup-info">' +
+                        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
+                    '</div>' +
+                '</div>' +
+                '<div v-for="file in files" class="vup-file col-3" v-bind:data-status="file.status" style="max-width:100px">' +
+                    '<div class="vup-info">' +
+                        '<img v-bind:src="file.imageData" alt="Preview" style="max-width:100%">' +
+                        '<div style="position:relative; height: 3px">' +
+                            '<div v-bind:style="\'position:absolute; background:orange; height:3px; left: 0; top: 0; width:\'+file.percent+\'%\'"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="custom-file">' +
+                '<input v-on:change="browseFile" type="file" class="custom-file-input" v-bind:id="id" v-bind:name="name" v-bind:multiple="isMultiple" v-bind:accept="accept">' +
+                '<label class="custom-file-label" v-bind:for="id">{{label}}</label>' +
+            '</div>' +
         '</div>'
 };

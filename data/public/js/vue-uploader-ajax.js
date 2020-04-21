@@ -26,6 +26,7 @@ VueUploader.ajax = {
             fileField: null, // The <input type="file" element
             files: [],
             status: '',
+            accepted: [],
         }
     },
     props: {
@@ -69,10 +70,10 @@ VueUploader.ajax = {
             type: String
         },
         multiple: {
-            default: "false",
+            default: "false", // Multiple file selection
             type: String
         },
-        defaultFiles: {
+        defaultFiles: { // Full url of files
             default: [],
             type: Array
         }
@@ -99,7 +100,7 @@ VueUploader.ajax = {
             return parseInt(this.max);
         },
         isMultiple: function () {
-            return (this.multiple) ? true : false;
+            return (this.multiple === "true" || this.multiple === true)
         }
     },
     methods: {
@@ -144,7 +145,7 @@ VueUploader.ajax = {
             me.status = me.UPLOADER_STATUS.QUEUED;
 
             // Check if FileReader exist
-            if (typeof FileReader !== "undefined" && ['image/png', 'image/jpeg', 'image/jpg'].indexOf(file.type) !== -1) {
+            if (typeof FileReader !== "undefined" && ['image/png', 'image/jpeg', 'image/jpg', 'image/gif'].indexOf(file.type) !== -1) {
                 var reader = new FileReader();
                 // Note: Async code in callback!
                 reader.onload = function (e) {
@@ -183,7 +184,7 @@ VueUploader.ajax = {
                 }
 
                 var count = files.length;
-                var accepted = me.accept.split(',');
+                me.accepted = me.accept.split(',');
                 // If one file is bigger than allowed bytes, abort
                 for (var i = 0; i < count; i++) {
                     if (files[i].size > me.fileSizeLimit) {
@@ -194,7 +195,7 @@ VueUploader.ajax = {
                         me.$emit('uploader-error', error, me.uploaderState());
                         return;
                     }
-                    if (accepted.indexOf(files[i].type) === -1) {
+                    if (me.accepted.indexOf(files[i].type) === -1 && me.accepted.indexOf('*') === -1) {
                         // Remove all FileList content
                         event.target.value = "";
                         var error = new Error('File type not allowed. Must be one of the following: ' + me.accept);
@@ -238,7 +239,14 @@ VueUploader.ajax = {
                 me.$emit('file-abort', file, me.uploaderState(), e);
             });
             xhr.addEventListener('load', function (e) {
+                var status = this.status;
                 var response = this.responseText;
+
+                if(status !== 200){
+                    file.status = me.FILE_STATUS.ERROR;
+                    me.$emit('file-error', file, me.uploaderState(), e, response);
+                    return false
+                }
                 file.status = me.FILE_STATUS.UPLOADED;
                 me.$emit('file-uploaded', file, me.uploaderState(), e, response); // response
 
@@ -261,7 +269,7 @@ VueUploader.ajax = {
             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest'); // For express req.xhr
 
             var formData = new FormData();
-            formData.append(file.uid, file.file);
+            formData.append(me.name, file.file);
 
             xhr.send(formData);
         },
@@ -274,13 +282,25 @@ VueUploader.ajax = {
                 me.$emit('uploader-error', error, me.uploaderState());
                 return;
             }
-
             var count = me.files.length;
+
+            function getBatches(count, perBatch){
+                var batches = Math.floor(count / perBatch)
+                if(count % perBatch > 0){
+                    batches += 1
+                }
+                return batches;
+            }
+            var perBatch = 2
+            var batches = getBatches(count, perBatch)
+            console.log(batches)
+            
             for (var x = 0; x < count; x++) {
                 var file = me.files[x];
                 me.uploadFile(file, x);
             }
         },
+
         upload: function () {
             var me = this;
 

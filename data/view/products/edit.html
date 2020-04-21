@@ -45,7 +45,7 @@
                 <div class="form-group">
                     <label for="photo">Upload Photos</label>
                     {# <input id="photo" name="photo" type="file" class="form-control"> #}
-                    <vue-uploader url="/product/{{product.barcode}}/photos" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
+                    <vue-uploader url="/product/{{product.barcode}}/photos" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" multiple="true" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
                 <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
             </div>
@@ -58,7 +58,6 @@
 <script src="{{app.url}}/js/axios.min.js"></script>
 <script src="{{app.url}}/js/script-axios-util.js"></script>
 <script src="{{app.url}}/js/vue.js"></script>
-<script src="{{app.url}}/js/pica.min.js"></script>
 <script src="{{app.url}}/js/vue-uploader-pica.js"></script>
 <script>
     var app = new Vue({
@@ -111,18 +110,23 @@
             onUploadFileProgress: function(file, uploader, e){
                 //console.log('file-progress', file, uploader, e)
             },
-            onUploadFileError: function(e){
+            onUploadFileError: function(file, uploader, e, response){
                 //console.log('file-error', e)
+                alert('Failed to upload ' + file.name + '. '+response)
             },
             onUploadFileUploaded: function(file, uploader, e, response){
                 console.log('file-uploaded', file, uploader, e, response)
                 var me = this;
 
-                let r = JSON.parse(response)
-                let z = r.saveList[file.uid]
-                for(x = 0; x < z.length; x++ ){
-                    var src = z[x];
-                    me.photos.push('https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-' + src)
+                try{
+                    let r = JSON.parse(response)
+                    let z = r.saveList[file.uid]
+                    for(x = 0; x < z.length; x++ ){
+                        var src = z[x];
+                        me.photos.push('https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-' + src)
+                    }
+                } catch (err) {
+
                 }
                 
             },
@@ -135,7 +139,6 @@
                 me.pending = true;
                 
                 window.utils.axios.delete('/product/{{product._id}}/photo/'+src).then(function(response){
-                    console.log(response.data);
                     var index = _.findKey(me.photos, (photo) => {
                         return src === photo;
                     });
