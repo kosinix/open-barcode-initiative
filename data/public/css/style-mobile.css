@@ -44,6 +44,8 @@ body, pre {
 }
 .layout-mobile nav ul {
     display: flex;
+    margin: 0;
+    padding: 0;
 }
 
 .layout-mobile nav ul li {
