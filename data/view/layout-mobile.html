@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Open Barcode Initiative</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="{{app.url}}/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="{{app.url}}/css/style-mobile.css" />
+</head>
+<body class="{{bodyClass}}">
+<div class="layout-mobile">
+    <nav>
+        <ul>
+            <li>
+                <a {% if originalUrl == '/' %}aria-current='page'{% endif %} href='/'>
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#151b26" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+                    </svg>
+                </a>
+            </li>
+            <li class="cam">
+                <a {% if originalUrl == '/scan' %}aria-current='page'{% endif %} href='/scan'>
+                    <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                        <path fill="#151b26" d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z" />
+                    </svg>
+                </a>
+            </li>
+            <li>
+                <a {% if originalUrl == '/login' %}aria-current='page'{% endif %} href='/login'>
+                    <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                        <path fill="#151b26" d="M12,19.2C9.5,19.2 7.29,17.92 6,16C6.03,14 10,12.9 12,12.9C14,12.9 17.97,14 18,16C16.71,17.92 14.5,19.2 12,19.2M12,5A3,3 0 0,1 15,8A3,3 0 0,1 12,11A3,3 0 0,1 9,8A3,3 0 0,1 12,5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
+                    </svg>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    <header>
+        <div class="logo">
+            <a class="" href="/"> 
+                <img src="/images/logo-xs.png" alt="">
+            </a>
+        </div>
+    </header>
+    <main class="main">
+        <div class="container-fluid pt-5 pb-5">
+            {% block body %}{% endblock %}
+        </div>
+    </main>
+</div>
+<footer class="footer d-print-none">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div></div>
+            </div>
+        </div>
+    </div>
+</footer>
+{% block scripts %}
+<script src="{{app.url}}/js/jquery-3.3.1.min.js"></script>
+<script src="{{app.url}}/js/popper.min.js"></script>
+<script src="{{app.url}}/js/bootstrap.min.js"></script>
+<script src="{{app.url}}/js/lodash.min.js"></script>
+<script src="{{app.url}}/js/moment.min.js"></script>
+<script src="{{app.url}}/js/script-cookies.js"></script>
+<script src="{{app.url}}/js/script.js"></script>
+{% endblock %}
+</body>
+</html>

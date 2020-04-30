@@ -48,6 +48,7 @@ app.use((req, res, next) => {
     bodyClass = lodash.trim(bodyClass, '-');
     bodyClass = lodash.trimEnd(bodyClass, '.html');
     req.app.locals.bodyClass = bodyClass; // global body class css
+    req.app.locals.originalUrl = req.originalUrl; // global body class css
 
     next();
 });
