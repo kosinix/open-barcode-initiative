@@ -48,6 +48,12 @@
                 <td>Modified</td>
                 <td>{{product.updatedAt|formatDate('MMM DD YYYY, hh:mm A')}} - <em>{{product.updatedAt|fromNow}} ago</em></td>
             </tr>
+            {% if user %}
+            <tr>
+                <td></td>
+                <td><a href="/product/{{product._id}}/edit">Edit</a></td>
+            </tr>
+            {% endif %}
         </table>
         
         
