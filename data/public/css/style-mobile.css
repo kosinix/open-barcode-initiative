@@ -86,7 +86,7 @@ h1 {
 }
 
 .card-image {
-    min-height: 250px;
+    min-height: 120px;
     position: relative;
     overflow: hidden;
     background: black;
@@ -99,7 +99,26 @@ h1 {
     top: 50%;
     text-anchor: middle;
 }
+.card-body {
+    padding: 6px;
+    font-size: 14px;
+}
+.card-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 14px;
+    white-space: nowrap;
 
+}
+.card-title a {
+}
+.grid {
+    display: flex;
+    flex-wrap: wrap;
+}
+.grid .item {
+    width: 115px;
+}
 
 .form-inner {
     position: relative;

@@ -15,7 +15,7 @@
                 </svg>
             </div>
 
-            <div class="row">
+            <div class="grid">
                 {% for product in products %}
                     {% include "parts/product-card.html" %}
                 {% endfor %}
@@ -25,7 +25,7 @@
             <h1 class="mb-5">No products found for this barcode.</h1>
             
             <h3 class="pt-5">Other products (Showing some out of {{productsCount}} total encoded products)</h3>
-            <div class="row">
+            <div class="grid">
                 {% for product in allProducts %}
                     {% include "parts/product-card.html" %}
                 {% endfor %}

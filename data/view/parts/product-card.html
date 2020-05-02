@@ -1,12 +1,12 @@
 
-<div class="col-md-3 mb-4">
+<div class="item ">
     <div class="card">
         <div class="card-image">
             <a href="/result/{{product._id}}">
             {% if product.photos and product.photos.length > 0 %}
                 {% for photo in product.photos %}
                     {% if loop.index == 1%}
-                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/medium-{{photo}}" alt="">
+                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="">
                     {% endif %}
                 {% endfor %}
             {% else %}
@@ -17,7 +17,7 @@
         <div class="card-body">
             <h5 class="card-title"><a href="/result/{{product._id}}">{{product.name}}</a></h5>
             <p class="card-text">{{product.size}} {{product.unit}}</p>
-            <p class="card-text"><small class="text-muted">{{product.createdAt|formatDate('MMM DD, YYYY')}}</small></p>
+            {# <p class="card-text"><small class="text-muted">{{product.createdAt|formatDate('MMM DD, YYYY')}}</small></p> #}
         </div>
     </div>
 </div>
