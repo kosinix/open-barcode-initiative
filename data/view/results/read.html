@@ -31,7 +31,7 @@
                         {% if product.photos and product.photos.length > 0 %}
                             {% for photo in product.photos %}
                                 <div class="mb-2 mr-2 ml-2">
-                                    <a href="/photo/{{photo}}?size=large">   
+                                    <a href="/result/{{product._id}}/photo/{{photo}}?size=large">   
                                         <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="">
                                     </a>
                                 </div>

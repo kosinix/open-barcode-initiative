@@ -170,7 +170,30 @@ router.get('/photo/:bucketKey', async (req, res, next) => {
     } catch (err) {
         next(err);
     }
-});    
+});   
+
+router.get('/result/:productId/photo/:bucketKey', middlewares.getProduct, async (req, res, next) => {
+    try {
+        let product = res.product
+
+        let bucketKey = req.params.bucketKey
+        let size = lodash.get(req, 'query.size','')
+        let prefix = ''
+        if(size) {
+            prefix = `${size}-` // append "-" eg. large-
+        }
+
+        res.render('results/read-photo.html', {
+            product: product,
+            bucketKey: bucketKey,
+            size: size,
+            alt: 'Photo - ' + size,
+            url: `https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/${prefix}${bucketKey}`
+        })
+    } catch (err) {
+        next(err);
+    }
+});   
 
 
 
