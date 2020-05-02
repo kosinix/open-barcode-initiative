@@ -106,6 +106,18 @@ body, pre {
     height: 100%;
     z-index: 5;
 }
+
+.barcode-group {
+    display: flex;
+}
+.barcode-group .form-control {
+    width: 90%
+}
+.barcode-group button {
+    width: 10%;
+    padding: 2px;
+}
+
 #interactive.viewport {
     position: relative;
     max-width: 600px;

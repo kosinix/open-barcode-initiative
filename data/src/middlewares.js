@@ -4,6 +4,7 @@
 const lodash = require('lodash');
 
 //// Modules
+const db = require('./db');
 const uploader = require('./uploader');
 
 let handleExpressUploadMagic = async (req, res, next) => {
@@ -44,7 +45,28 @@ let requireAuth = async (req, res, next) => {
     }
 }
 
+let getProduct = async (req, res, next) => {
+    try {
+        let productId = lodash.get(req.params, 'productId')
+        if(!productId){
+            throw new Error('Invalid product ID.')
+        }
+
+        let product = await db.web.Product.findById(productId)
+        if(!product){
+            throw new Error('Product not found.')
+        }
+        
+        res.product = product
+
+        next()
+    } catch (err) {
+        next(err)
+    }
+}
+
 module.exports = {
+    getProduct: getProduct,
     handleExpressUploadMagic: handleExpressUploadMagic,
     requireAuth: requireAuth,
 }

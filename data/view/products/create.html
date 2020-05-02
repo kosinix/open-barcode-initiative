@@ -9,7 +9,14 @@
         <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/create" method="POST">
             <div class="form-group">
                 <label for="barcode">Barcode</label>
-                <input v-model="barcode" id="barcode" name="barcode" type="text" class="form-control">
+                <div class="barcode-group">
+                    <input v-model="barcode" id="barcode" name="barcode" type="text" class="form-control">
+                    <button v-on:click="onBarcode" type="button" class="btn btn-light btn-sm">
+                        <svg style="width:36px;height:36px" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M2,6H4V18H2V6M5,6H6V18H5V6M7,6H10V18H7V6M11,6H12V18H11V6M14,6H16V18H14V6M17,6H20V18H17V6M21,6H22V18H21V6Z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div class="form-group">
                 <label for="name">Product Name</label>
@@ -19,7 +26,7 @@
                 <label for="size">Size</label>
                 <div class="form-row">
                     <div class="col">
-                        <input v-model="size" id="size" name="size" type="number" class="form-control">
+                        <input v-model="size" id="size" name="size" type="number" step="any" class="form-control">
                     </div> 
                     <div class="col">
                         <select v-model="unit" name="unit" id="unit" class="form-control">
@@ -35,12 +42,103 @@
         </form>
     </div>
 </div>
+{% include "parts/modal-scan.html" %}
 {% endblock %}
 {% block scripts %}
 {{ super() }}
 <script src="{{app.url}}/js/vue.js"></script>
+<script src="{{app.url}}/js/quagga.min.js"></script>
 <script>
-    var app = new Vue({
+    var app = undefined;
+
+    var config = {
+        inputStream: {
+            type: "LiveStream",
+            constraints: {
+                width: { min: 320 },
+                height: { min: 240 },
+                aspectRatio: { min: 1, max: 100 },
+                facingMode: "environment" // or user
+            },
+            target: document.querySelector('#interactive'),
+        },
+        locator: {
+            patchSize: "medium",
+            halfSample: true
+        },
+        numOfWorkers: 2,
+        frequency: 10,
+        decoder: {
+            readers: [{
+                format: "ean_reader",
+                config: {}
+            }]
+        },
+        locate: true
+    }
+
+    Quagga.onProcessed(function (result) {
+        var drawingCtx = Quagga.canvas.ctx.overlay,
+            drawingCanvas = Quagga.canvas.dom.overlay;
+
+        if (result) {
+            if (result.boxes) {
+                drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+                result.boxes.filter(function (box) {
+                    return box !== result.box;
+                }).forEach(function (box) {
+                    Quagga.ImageDebug.drawPath(box, { x: 0, y: 1 }, drawingCtx, { color: "green", lineWidth: 2 });
+                });
+            }
+
+            if (result.box) {
+                Quagga.ImageDebug.drawPath(result.box, { x: 0, y: 1 }, drawingCtx, { color: "#00F", lineWidth: 2 });
+            }
+
+            if (result.codeResult && result.codeResult.code) {
+                Quagga.ImageDebug.drawPath(result.line, { x: 'x', y: 'y' }, drawingCtx, { color: 'red', lineWidth: 3 });
+            }
+        }
+    });
+
+    var candidates = {}
+    var threshold = 3
+    Quagga.onDetected(function (result) {
+        var code = result.codeResult.code;
+        code = code + ''
+        if (candidates[code]) {
+            if (candidates[code] >= threshold) {
+                app.barcode = code // vue
+                Quagga.stop()
+
+                var drawingCtx = Quagga.canvas.ctx.overlay
+                var drawingCanvas = Quagga.canvas.dom.overlay;
+
+                if (result) {
+                    if (result.boxes) {
+                        drawingCtx.clearRect(0, 0, parseInt(drawingCanvas.getAttribute("width")), parseInt(drawingCanvas.getAttribute("height")));
+
+                    }
+                }
+                jQuery('#modal-scan').modal('hide')
+            } else {
+                candidates[code]++
+
+            }
+        } else {
+            candidates[code] = 1
+        }
+        console.log(candidates)
+    });
+
+    $('#modal-scan').on('hide.bs.modal', function (e) {
+        if(Quagga){
+            $('#interactive').html('')
+            Quagga.stop();
+        }
+    })
+
+    app = new Vue({
         el: '#v-encode',
         delimiters: ["${", "}"],
         components: {
@@ -54,17 +152,28 @@
             photo: '',
         },
         created: function(){
-            var barcode = getQuery('barcode')
-            if(barcode){
-                this.barcode = barcode
-            }
+            
         },
         methods: {
+            onBarcode: function(){
+                Quagga.init(config, function (err) {
+                    if (err) {
+                        console.log(err);
+                        alert(err.message)
+                        return;
+                    }
+                    Quagga.start();
+                    jQuery('#modal-scan').modal('show')
+                });
+            },
             onSubmit: function(){
                 var me = this;
                 me.$nextTick(function() {
                     me.$refs.form.submit();
                 });
+            },
+            onClose: function(){
+                
             }
         }
     })

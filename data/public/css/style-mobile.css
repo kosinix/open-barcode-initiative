@@ -81,6 +81,12 @@ header {
     background: #151b26;
 }
 
+h1 {
+    font-size: 22px;
+}
+
+
+
 
 .form-inner {
     position: relative;

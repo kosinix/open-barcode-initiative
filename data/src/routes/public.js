@@ -15,7 +15,13 @@ let router = express.Router();
 
 router.get('/', async (req, res, next) => {
     try {
+
+        let recent = await db.web.Product.find({},{}, {limit: 5}).sort({
+            createdAt: -1
+        })
+
         res.render('index.html', {
+            recent: recent,
         })
     } catch (err) {
         next(err);

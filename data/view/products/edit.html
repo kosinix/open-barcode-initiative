@@ -20,7 +20,7 @@
                     <label for="size">Size</label>
                     <div class="form-row">
                         <div class="col">
-                            <input v-model="product.size" id="size" name="size" type="number" class="form-control">
+                            <input v-model="product.size" id="size" name="size" type="number" step="any" class="form-control">
                         </div> 
                         <div class="col">
                             <select v-model="product.unit" name="unit" id="unit" class="form-control">
@@ -48,6 +48,7 @@
                     <vue-uploader url="/product/{{product.barcode}}/photos" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" multiple="true" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
                 <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
+                <a href="/product/{{product._id}}/delete" v-bind:disabled="pending" class="btn btn-danger">${btnLabel2}</a>
             </div>
         </form>
     </div>
@@ -94,7 +95,13 @@
                     return 'Saving....'
                 }
                 return 'Save Product'
-            }
+            },
+            btnLabel2: function(){
+                if(this.pending){
+                    return 'Saving....'
+                }
+                return 'Delete Product'
+            },
         },
         methods: {
             onUploaderCreated: function(e){

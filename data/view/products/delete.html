@@ -1,0 +1,46 @@
+{% extends "document.html" %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        <h3>Delete Product</h3>
+        <form action="/product/{{product._id}}/delete" method="POST">
+            <div class="form-group">
+                <svg class="barcode"
+                    jsbarcode-format="EAN13"
+                    jsbarcode-value="{{product.barcode}}"
+                    jsbarcode-width="2"
+                    jsbarcode-height="60"
+                    jsbarcode-textmargin="0"
+                    jsbarcode-fontoptions="bold">
+                </svg>
+            </div>
+            <div class="form-group">
+                {{product.name}}
+            </div>
+            <div class="form-group">
+                {{product.size}}
+                {{product.unit}}
+            </div>
+            <div class="form-group uploaded-photos">
+                <div class="form-row">
+                    {% for photo in product.photos %}
+                    <div class="col" style="flex-grow:0; position:relative;">
+                        <img v-bind:src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="photo-{{loop.index}}">
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <button class="btn btn-danger">Delete Permanently</button>
+            <a href="/product/{{product._id}}/edit" class="btn btn-link">Cancel</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/JsBarcode.all.min.js"></script>
+<script>
+    JsBarcode("svg.barcode").init();
+</script>
+{% endblock %}
