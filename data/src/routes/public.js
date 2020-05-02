@@ -30,6 +30,10 @@ router.get('/', async (req, res, next) => {
 
 router.get('/login', async (req, res, next) => {
     try {
+        let user = lodash.get(req, 'session.user')
+        if(user){
+            return res.redirect('/products')
+        }
         // let salt = 'QJJjfkW3GDY8Vrvm7bHtwYawsA74Y6X3'
         // let passwordHash = db.web.User.hashPassword('NicO2020?', salt)
 
@@ -103,17 +107,6 @@ router.post('/scan', async (req, res, next) => {
         let body = req.body
         let user = lodash.get(req, 'session.user')
 
-        if (user) {
-
-            let products = await db.web.Product.find({
-                barcode: body.barcode,
-            })
-            if (products && products.length <= 0) {
-                return res.redirect(`/product/create?barcode=${body.barcode}`)
-            }
-            return res.redirect(`/product/edit?barcode=${body.barcode}`)
-        }
-
         return res.redirect(`/results?barcode=${body.barcode}`)
     } catch (err) {
         next(err);
@@ -136,7 +129,7 @@ router.get('/results', async (req, res, next) => {
 
         let productsCount = await db.web.Product.count()
 
-        res.render('products/results.html', {
+        res.render('results/all.html', {
             products: products,
             allProducts: allProducts,
             productsCount: productsCount,
@@ -146,6 +139,38 @@ router.get('/results', async (req, res, next) => {
     }
 });
 
+router.get('/result/:productId', middlewares.getProduct, async (req, res, next) => {
+    try {
+        let product = res.product
+        
+        res.render('results/read.html', {
+            product: product
+        })
+    } catch (err) {
+        next(err);
+    }
+});    
+
+
+router.get('/photo/:bucketKey', async (req, res, next) => {
+    try {
+        let bucketKey = req.params.bucketKey
+        let size = lodash.get(req, 'query.size','')
+        let prefix = ''
+        if(size) {
+            prefix = `${size}-` // append "-" eg. large-
+        }
+
+        res.render('photo.html', {
+            bucketKey: bucketKey,
+            size: size,
+            alt: 'Photo - ' + size,
+            url: `https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/${prefix}${bucketKey}`
+        })
+    } catch (err) {
+        next(err);
+    }
+});    
 
 
 

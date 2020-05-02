@@ -4,18 +4,25 @@
 
 <div class="row">
     <div class="col-md-12" id="vApp">
-        <h3>Edit Product</h3>
-        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak action="/product/edit" method="POST" enctype="multipart/form-data">
+        <h3>Edit {{product.barcode}}</h3>
+        <form id="v-encode" ref="form" v-on:submit.prevent="onSubmit" v-cloak v-bind:action="formUrl" method="POST" enctype="multipart/form-data">
             <div v-if="!product">No product</div>
             <div v-else class="form-inner" v-bind:data-pending="pending">
                 <div class="form-group">
-                    <label for="barcode">Barcode</label>
-                    <input v-model="product.barcode" id="barcode" name="barcode" type="text" class="form-control">
+                    <svg class="barcode"
+                        jsbarcode-format="EAN13"
+                        jsbarcode-value="{{product.barcode}}"
+                        jsbarcode-width="2"
+                        jsbarcode-height="60"
+                        jsbarcode-textmargin="0"
+                        jsbarcode-fontoptions="bold">
+                    </svg>
                 </div>
                 <div class="form-group">
                     <label for="name">Product Name</label>
                     <input v-model="product.name" id="name" name="name" type="text" class="form-control">
                 </div>
+                
                 <div class="form-group">
                     <label for="size">Size</label>
                     <div class="form-row">
@@ -47,8 +54,19 @@
                     {# <input id="photo" name="photo" type="file" class="form-control"> #}
                     <vue-uploader url="/product/{{product.barcode}}/photos" v-on:uploader-created="onUploaderCreated" v-on:uploader-error="onUploaderError" v-on:file-added="onUploaderFileAdded" v-on:file-progress="onUploadFileProgress" v-on:file-error="onUploadFileError" v-on:file-uploaded="onUploadFileUploaded" v-on:upload-complete="onUploadComplete" ref="photo" id="photo" name="photo" label="Select File" max="2" file-size="10000000" multiple="true" accept="image/png,image/jpeg" v-bind:default-files="[]"></vue-uploader>
                 </div>
-                <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
-                <a href="/product/{{product._id}}/delete" v-bind:disabled="pending" class="btn btn-danger">${btnLabel2}</a>
+                <div class="form-row">
+                    <div class="col-6">
+                        <a href="/products" v-bind:disabled="pending" class="btn btn-link">Back</a>
+                    </div>
+                    <div class="col-6 text-right">
+                        <a href="/product/{{product._id}}/delete" style="padding:2px" v-bind:disabled="pending" class="mr-2 btn btn-danger">
+                            <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                                <path fill="currentColor" d="M6,19A2,2 0 0,0 8,21H16A2,2 0 0,0 18,19V7H6V19M8,9H16V19H8V9M15.5,4L14.5,3H9.5L8.5,4H5V6H19V4H15.5Z" />
+                            </svg>
+                        </a>
+                        <button v-bind:disabled="pending" class="btn btn-primary">${btnLabel}</button>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -60,6 +78,8 @@
 <script src="{{app.url}}/js/script-axios-util.js"></script>
 <script src="{{app.url}}/js/vue.js"></script>
 <script src="{{app.url}}/js/vue-uploader-pica.js"></script>
+<script src="{{app.url}}/js/JsBarcode.all.min.js"></script>
+
 <script>
     var app = new Vue({
         el: '#v-encode',
@@ -70,7 +90,7 @@
         data: {
             pending: false,
             product: {{product|stringify|safe}},
-            barcode: '',
+            formUrl: '/product/{{product._id}}/edit',
             name: '',
             size: '',
             unit: '',
@@ -79,10 +99,9 @@
             photos: [],
         },
         created: function(){
-            var barcode = getQuery('barcode')
-            if(barcode){
-                this.barcode = barcode
-            }
+
+            JsBarcode("svg.barcode").init();
+
             if(this.product.photos){
                 for(var x = 0; x < this.product.photos.length; x++){
                     this.photos.push(this.product.photos[x])

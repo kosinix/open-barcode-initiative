@@ -1,0 +1,63 @@
+{% extends "layout-mobile.html" %}
+
+{% block body %}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1><a href="/results?barcode={{product.barcode}}">&lt;&lt;</a> {{product.name}}</h1>
+        <table class="table">
+            <tr>
+                <td>Common Name</td>
+                <td>{{product.name}}</td>
+            </tr>
+            <tr>
+                <td>Size</td>
+                <td>{{product.size}} {{product.unit}}</td>
+            </tr>
+            <tr>
+                <td>Photos</td>
+                <td>
+                    <div class="row">
+                        <div class="mb-2 mr-2 ml-2">
+                            <svg class="barcode"
+                                jsbarcode-format="EAN13"
+                                jsbarcode-value="{{product.barcode}}"
+                                jsbarcode-width="2"
+                                jsbarcode-height="40"
+                                jsbarcode-textmargin="0"
+                                jsbarcode-fontoptions="bold">
+                            </svg>
+                        </div>
+                        {% if product.photos and product.photos.length > 0 %}
+                            {% for photo in product.photos %}
+                                <div class="mb-2 mr-2 ml-2">
+                                    <a href="/photo/{{photo}}?size=large">   
+                                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="">
+                                    </a>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>Created</td>
+                <td>{{product.createdAt|formatDate('MMM DD YYYY, hh:mm A')}} - <em>{{product.createdAt|fromNow}} ago</em></td>
+            </tr>
+            <tr>
+                <td>Modified</td>
+                <td>{{product.updatedAt|formatDate('MMM DD YYYY, hh:mm A')}} - <em>{{product.updatedAt|fromNow}} ago</em></td>
+            </tr>
+        </table>
+        
+        
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/JsBarcode.all.min.js"></script>
+<script>
+JsBarcode("svg.barcode").init();
+</script>
+{% endblock %}

@@ -48,7 +48,7 @@ let requireAuth = async (req, res, next) => {
 let getProduct = async (req, res, next) => {
     try {
         let productId = lodash.get(req.params, 'productId')
-        if(!productId){
+        if(!db.mongoose.Types.ObjectId.isValid(productId) || !productId){
             throw new Error('Invalid product ID.')
         }
 

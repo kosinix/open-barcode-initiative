@@ -26,13 +26,20 @@
                 <div class="form-row">
                     {% for photo in product.photos %}
                     <div class="col" style="flex-grow:0; position:relative;">
-                        <img v-bind:src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="photo-{{loop.index}}">
+                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{photo}}" alt="photo-{{loop.index}}">
                     </div>
                     {% endfor %}
                 </div>
             </div>
-            <button class="btn btn-danger">Delete Permanently</button>
-            <a href="/product/{{product._id}}/edit" class="btn btn-link">Cancel</a>
+            <div class="form-row">
+                <div class="col-6">
+                    <a href="/product/{{product._id}}/edit" v-bind:disabled="pending" class="btn btn-link">Cancel</a>
+                </div>
+                <div class="col-6 text-right">
+                    <button class="btn btn-danger">Delete Permanently</button>
+                </div>
+            </div>
+
         </form>
     </div>
 </div>

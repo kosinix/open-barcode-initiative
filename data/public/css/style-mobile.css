@@ -85,7 +85,20 @@ h1 {
     font-size: 22px;
 }
 
-
+.card-image {
+    min-height: 250px;
+    position: relative;
+    overflow: hidden;
+    background: black;
+}
+.card-image img,
+.card-image svg {
+    transform: translate(-50%, -50%);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    text-anchor: middle;
+}
 
 
 .form-inner {

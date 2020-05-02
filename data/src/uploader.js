@@ -57,27 +57,27 @@ const _imageSizes = [
 
         }
     },
-    // {
-    //     name: 'medium',
-    //     allowedMimes: ["image/jpeg", "image/png"], // Resize only if source file is this mime type
-    //     mimeType: 'image/jpeg', // Destination file type
-    //     fxFileName: (baseName) => { // Basename without extension (.jpeg)
-    //         return `medium-${baseName}.jpeg`
-    //     },
-    //     fx: async (srcFile, destFile) => {
-    //         sharp.cache(false); // Disable unlink error due files not released
-    //         // returns Promise
-    //         return sharp(srcFile)
-    //             .rotate()
-    //             .resize(200, 200)
-    //             .max()
-    //             .background({ r: 255, g: 255, b: 255, alpha: 1 })
-    //             .flatten()
-    //             .jpeg()
-    //             .toFile(destFile);
+    {
+        name: 'medium',
+        allowedMimes: ["image/jpeg", "image/png"], // Resize only if source file is this mime type
+        mimeType: 'image/jpeg', // Destination file type
+        fxFileName: (baseName) => { // Basename without extension (.jpeg)
+            return `medium-${baseName}.jpeg`
+        },
+        fx: async (srcFile, destFile) => {
+            sharp.cache(false); // Disable unlink error due files not released
+            // returns Promise
+            return sharp(srcFile)
+                .rotate()
+                .resize(350, 350)
+                .max()
+                .background({ r: 255, g: 255, b: 255, alpha: 1 })
+                .flatten()
+                .jpeg()
+                .toFile(destFile);
 
-    //     }
-    // },
+        }
+    },
     {
         name: 'large',
         allowedMimes: ["image/jpeg", "image/png"], // Resize only if source file is this mime type

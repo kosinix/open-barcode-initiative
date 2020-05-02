@@ -1,0 +1,12 @@
+{% extends "layout-bare-mobile.html" %}
+
+{% block body %}
+<div style="text-align:center">
+    <p>
+        <a href="/photo/{{bucketKey}}?size=small">Small</a> |
+        <a href="/photo/{{bucketKey}}?size=medium">Medium</a> |
+        <a href="/photo/{{bucketKey}}?size=large">Large</a>
+    </p>
+    <img src="{{url}}" alt="{{alt}}">
+</div>
+{% endblock %}

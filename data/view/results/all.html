@@ -1,0 +1,43 @@
+{% extends "layout-mobile.html" %}
+
+{% block body %}
+<div class="row">
+    <div class="col-md-12" id="vApp">
+        {% if products and products.length > 0 %}
+            <div class="mb-4 text-center">
+                <svg class="barcode"
+                    jsbarcode-format="EAN13"
+                    jsbarcode-value="{{products[0].barcode}}"
+                    jsbarcode-width="2"
+                    jsbarcode-height="60"
+                    jsbarcode-textmargin="0"
+                    jsbarcode-fontoptions="bold">
+                </svg>
+            </div>
+
+            <div class="row">
+                {% for product in products %}
+                    {% include "parts/product-card.html" %}
+                {% endfor %}
+            </div>
+            
+        {% else %}
+            <p class="mb-5">No products found for this barcode.</p>
+            
+            <h3 class="pt-5">Other products (Showing some out of {{productsCount}} total encoded products)</h3>
+            <div class="row">
+                {% for product in allProducts %}
+                    {% include "parts/product-card.html" %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ super() }}
+<script src="{{app.url}}/js/JsBarcode.all.min.js"></script>
+<script>
+JsBarcode("svg.barcode").init();
+</script>
+{% endblock %}

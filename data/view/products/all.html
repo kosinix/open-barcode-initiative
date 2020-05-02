@@ -8,7 +8,7 @@
             <div class="table-responsive-sm">
                 <table class="table">
                     <tr>
-                        <th>Barcode</th>
+                        <th style="width: 234px">Barcode</th>
                         <th>Name</th>
                         <th>Size</th>
                         <th>Photo</th>
@@ -16,7 +16,7 @@
                     {% for product in products %}
                     <tr>
                         <td>
-                            <a href="/product/edit?barcode={{product.barcode}}">  
+                            <a href="/product/{{product._id}}/edit">  
                                 <svg class="barcode"
                                     jsbarcode-format="EAN13"
                                     jsbarcode-value="{{product.barcode}}"

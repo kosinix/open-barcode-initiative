@@ -57,36 +57,6 @@ router.get('/product/edit', async (req, res, next) => {
         next(err);
     }
 });
-router.post('/product/edit', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
-    try {
-
-        let body = req.body
-        let files = req.saveList
-
-
-        let product = await db.web.Product.findOne({
-            barcode: body.barcode,
-        })
-        if (product) {
-            product.name = body.name
-            product.size = body.size
-            product.unit = body.unit
-            product.description = body.description
-            if (lodash.has(files, 'photo.0')) {
-                product.photo = files.photo[0]
-            }
-            await product.save()
-        }
-
-        // return res.send({
-        //     body: body,
-        //     files: files,
-        // })
-        return res.redirect('/products')
-    } catch (err) {
-        next(err);
-    }
-});
 
 router.post('/product/:barcode/photos', fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
     try {
@@ -161,7 +131,45 @@ router.get('/products', async (req, res, next) => {
     }
 });
 
+router.get('/product/:productId/edit', middlewares.getProduct, async (req, res, next) => {
+    try {
 
+        res.render('products/edit.html', {
+            product: res.product
+        })
+    } catch (err) {
+        next(err);
+    }
+});
+router.post('/product/:productId/edit', middlewares.getProduct, fileUpload(), middlewares.handleExpressUploadMagic, async (req, res, next) => {
+    try {
+
+        let body = req.body
+        let files = req.saveList
+
+
+        let product = res.product
+
+        if (product) {
+            product.name = body.name
+            product.size = body.size
+            product.unit = body.unit
+            product.description = body.description
+            if (lodash.has(files, 'photo.0')) {
+                product.photo = files.photo[0]
+            }
+            await product.save()
+        }
+
+        // return res.send({
+        //     body: body,
+        //     files: files,
+        // })
+        return res.redirect(`/product/${product._id}/edit`)
+    } catch (err) {
+        next(err);
+    }
+});
 
 router.get('/product/:productId/delete', middlewares.getProduct, async (req, res, next) => {
     try {

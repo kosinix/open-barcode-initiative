@@ -5,19 +5,16 @@
 <div class="row">
     <div class="col-md-12">
         {% if recent.length %}
-            <h2>Recent</h2>
+            <h1>Recent</h1>
             <p>{{recent.length}} products recently added.</p>
 
-            <ul class="recent">
-                {% for item in recent %}
-                    <li>
-                        <p>{{item.name}}</p>
-                        <img src="https://kosinix-bucket1.s3-ap-southeast-1.amazonaws.com/small-{{item.photos[0]}}" alt="">
-                    </li>
+            <div class="row">
+                {% for product in recent %}
+                    {% include "parts/product-card.html" %}
                 {% endfor %}
-            </ul>
+            </div>
+           
         {% endif %}
-
     </div>
 </div>
 {% endblock %}
