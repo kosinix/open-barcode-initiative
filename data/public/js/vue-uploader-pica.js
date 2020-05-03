@@ -195,7 +195,7 @@ VueUploader.pica = {
                 me.fileField = event.target;
 
                 // Remove all from component
-                me.files = [];
+                //me.files = [];
 
                 // If max count is not -1 and selected is more than max count
                 if (me.maxCount !== -1 && files.length > me.maxCount) {
