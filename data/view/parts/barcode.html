@@ -1,0 +1,8 @@
+<svg class="barcode"
+    jsbarcode-format="{% if barcode.length == 8 %}EAN8{% elif barcode.length == 13 %}EAN13{% endif %}"
+    jsbarcode-value="{{barcode}}"
+    jsbarcode-width="2"
+    jsbarcode-height="60"
+    jsbarcode-textmargin="0"
+    jsbarcode-fontoptions="bold">
+</svg>

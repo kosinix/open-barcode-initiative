@@ -5,14 +5,8 @@
     <div class="col-md-12" id="vApp">
         {% if products and products.length > 0 %}
             <div class="mb-4 text-center">
-                <svg class="barcode"
-                    jsbarcode-format="EAN13"
-                    jsbarcode-value="{{products[0].barcode}}"
-                    jsbarcode-width="2"
-                    jsbarcode-height="60"
-                    jsbarcode-textmargin="0"
-                    jsbarcode-fontoptions="bold">
-                </svg>
+                {% set barcode = products[0].barcode %}
+                {% include "parts/barcode.html" %}
             </div>
 
             <div class="grid">

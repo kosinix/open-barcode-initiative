@@ -19,14 +19,8 @@
                 <td>
                     <div class="row">
                         <div class="mb-2 mr-2 ml-2">
-                            <svg class="barcode"
-                                jsbarcode-format="EAN13"
-                                jsbarcode-value="{{product.barcode}}"
-                                jsbarcode-width="2"
-                                jsbarcode-height="40"
-                                jsbarcode-textmargin="0"
-                                jsbarcode-fontoptions="bold">
-                            </svg>
+                            {% set barcode = product.barcode %}
+                            {% include "parts/barcode.html" %}
                         </div>
                         {% if product.photos and product.photos.length > 0 %}
                             {% for photo in product.photos %}

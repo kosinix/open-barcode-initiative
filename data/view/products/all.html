@@ -17,14 +17,8 @@
                     <tr>
                         <td>
                             <a href="/product/{{product._id}}/edit">  
-                                <svg class="barcode"
-                                    jsbarcode-format="EAN13"
-                                    jsbarcode-value="{{product.barcode}}"
-                                    jsbarcode-width="2"
-                                    jsbarcode-height="60"
-                                    jsbarcode-textmargin="0"
-                                    jsbarcode-fontoptions="bold">
-                                </svg>
+                                {% set barcode = product.barcode %}
+                                {% include "parts/barcode.html" %}
                             </a> 
                         </td>
                         <td>{{product.name}}</td>
