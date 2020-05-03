@@ -29,7 +29,7 @@
                 <input id="barcode" name="barcode" type="hidden" value="" class="form-control">
             </div>
         </form>
-        <div class="alert alert-warning">Note: Only <a target="_blank" href="https://en.wikipedia.org/wiki/International_Article_Number">EAN-13</a> barcodes supported at the moment. (13-digit standard barcode)</div>
+        <div class="alert alert-warning">Note: Only <a target="_blank" href="https://en.wikipedia.org/wiki/International_Article_Number">EAN-13</a> and EAN-8 barcodes supported at the moment. (13-digit standard barcode)</div>
 
     </div>
 </div>
@@ -56,10 +56,16 @@
         numOfWorkers: 2,
         frequency: 10,
         decoder: {
-            readers: [{
-                format: "ean_reader",
-                config: {}
-            }]
+            readers: [
+                {
+                    format: "ean_reader",
+                    config: {}
+                },
+                {
+                    format: "ean_8_reader",
+                    config: {}
+                }
+            ]
         },
         locate: true
     }
