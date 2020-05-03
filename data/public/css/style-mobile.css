@@ -31,7 +31,7 @@ body, pre {
     position: relative;
     padding-bottom: 80px;
 }
-.layout-mobile nav {
+.layout-mobile .nav-main {
     position: fixed;
     bottom: 0;
     left: 0;
@@ -42,29 +42,29 @@ body, pre {
     background: rgba(241,241,241,0.9);
     z-index: 1;
 }
-.layout-mobile nav ul {
+.layout-mobile .nav-main ul {
     display: flex;
     margin: 0;
     padding: 0;
 }
 
-.layout-mobile nav ul li {
+.layout-mobile .nav-main ul li {
     flex-grow: 1;
     text-align: center;
     list-style: none inside;
 }
 
-.layout-mobile nav ul li a {
+.layout-mobile .nav-main ul li a {
     display: inline-block;
     padding-top: 15px;
     position: relative;
 }
 
-.layout-mobile nav ul li.cam a {
+.layout-mobile .nav-main ul li.cam a {
     padding-top: 4px;
 }
 
-.layout-mobile nav ul li a[aria-current='page']::after {
+.layout-mobile .nav-main ul li a[aria-current='page']::after {
     content:"";
     display: block;
     height:3px;
@@ -73,6 +73,28 @@ body, pre {
     position: absolute;
     top: 0;
     left: 0;
+}
+
+.layout-mobile .nav-main ul li a[aria-current='page']::after {
+    content:"";
+    display: block;
+    height:3px;
+    width: 100%;
+    background: rgb(255, 62, 0);
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+.layout-mobile .nav-sub {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 52px;
+    border-top: 1px solid #ccc;
+    background: rgba(241,241,241,0.9);
+    z-index: 1;
 }
 
 header {
@@ -110,8 +132,7 @@ h1 {
     white-space: nowrap;
 
 }
-.card-title a {
-}
+
 .grid {
     display: flex;
     flex-wrap: wrap;

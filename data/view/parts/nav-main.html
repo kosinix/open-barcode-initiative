@@ -1,0 +1,43 @@
+<nav class="nav-main">
+    <ul>
+        <li>
+            <a {% if originalUrl == '/' %}aria-current='page'{% endif %} href='/'>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#151b26" d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+                </svg>
+            </a>
+        </li>
+        {% if user %}
+        <li>
+            <a {% if originalUrl == '/products' %}aria-current='page'{% endif %} href='/products'>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#151b26" d="M20,18H4V8H20M20,6H12L10,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V8A2,2 0 0,0 20,6M15,16H6V14H15V16M18,12H6V10H18V12Z" />
+                </svg>
+            </a>
+        </li>
+        {% endif %}
+        <li class="cam">
+            <a {% if originalUrl == '/scan' %}aria-current='page'{% endif %} href='/scan'>
+                <svg style="width:48px;height:48px" viewBox="0 0 24 24">
+                    <path fill="#151b26" d="M4,4H7L9,2H15L17,4H20A2,2 0 0,1 22,6V18A2,2 0 0,1 20,20H4A2,2 0 0,1 2,18V6A2,2 0 0,1 4,4M12,7A5,5 0 0,0 7,12A5,5 0 0,0 12,17A5,5 0 0,0 17,12A5,5 0 0,0 12,7M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9Z" />
+                </svg>
+            </a>
+        </li>
+        <li>
+            <a {% if originalUrl == '/login' %}aria-current='page'{% endif %} href='/login'>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#151b26" d="M12,19.2C9.5,19.2 7.29,17.92 6,16C6.03,14 10,12.9 12,12.9C14,12.9 17.97,14 18,16C16.71,17.92 14.5,19.2 12,19.2M12,5A3,3 0 0,1 15,8A3,3 0 0,1 12,11A3,3 0 0,1 9,8A3,3 0 0,1 12,5M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12C22,6.47 17.5,2 12,2Z" />
+                </svg>
+            </a>
+        </li>
+        {% if user %}
+        <li>
+            <a {% if originalUrl == '/logout' %}aria-current='page'{% endif %} href='/logout'>
+                <svg style="width:24px;height:24px" viewBox="0 0 24 24">
+                    <path fill="#151b26" d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z" />
+                </svg>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>

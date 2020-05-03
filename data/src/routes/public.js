@@ -127,7 +127,7 @@ router.get('/results', async (req, res, next) => {
             }
         }).limit(10)
 
-        let productsCount = await db.web.Product.count()
+        let productsCount = await db.web.Product.countDocuments()
 
         res.render('results/all.html', {
             products: products,
