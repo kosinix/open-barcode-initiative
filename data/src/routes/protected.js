@@ -16,7 +16,10 @@ let router = express.Router();
 router.use(middlewares.requireAuth)
 router.get('/product/create', async (req, res, next) => {
     try {
-        res.render('products/create.html')
+        let barcode = lodash.get(req, 'query.barcode')
+        res.render('products/create.html', {
+            barcode: barcode
+        })
     } catch (err) {
         next(err);
     }

@@ -107,6 +107,17 @@ router.post('/scan', async (req, res, next) => {
         let body = req.body
         let user = lodash.get(req, 'session.user')
 
+        if(user){
+            let barcode = lodash.get(body, 'barcode')
+
+            let products = await db.web.Product.find({
+                barcode: barcode,
+            })
+            if(products.length <= 0){
+                return res.redirect(`/product/create?barcode=${body.barcode}`)
+
+            }
+        }
         return res.redirect(`/results?barcode=${body.barcode}`)
     } catch (err) {
         next(err);
